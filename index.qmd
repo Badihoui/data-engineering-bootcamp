@@ -185,7 +185,9 @@ Atteindre le niveau "Senior Data Engineer / Architecte Data" avec une maîtrise 
 
 | Compétence | Débutant | Intermédiaire | Avancé |
 |:-----------|:--------:|:-------------:|:------:|
+| Linux & Bash | ✅✅ | ✅✅✅ | ✅✅✅ |
 | Python & SQL | ✅ | ✅✅ | ✅✅✅ |
+| Git & Versioning | ✅✅ | ✅✅ | ✅✅ |
 | PySpark | ✅ | ✅✅ | ✅✅✅ |
 | Spark Scala | - | - | ✅✅ |
 | Docker & Kubernetes | - | ✅✅ | ✅✅✅ |

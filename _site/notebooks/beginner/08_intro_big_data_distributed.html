@@ -1,0 +1,4125 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Introduction au Big Data &amp; Systèmes Distribués – Bootcamp Data Engineering</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../notebooks/beginner/09_mongodb_for_data_engineers.html" rel="next">
+<link href="../../notebooks/beginner/07_sql_for_data_engineers.html" rel="prev">
+<link href="../../assets/images/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-fc8d3d93f0a84b7619e1f8ff6eb63d42.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-fc8d3d93f0a84b7619e1f8ff6eb63d42.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-fc8d3d93f0a84b7619e1f8ff6eb63d42.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-158fc3315b9ab2c04d7955da212b30ae.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6061651b5b1fab8070c767ff15b2e7f7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-158fc3315b9ab2c04d7955da212b30ae.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": true,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer",
+    "search-label": "Recherche"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-NZSBZFMZN7"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-NZSBZFMZN7', { 'anonymize_ip': true});
+</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<meta name="author" content="Diakite Data">
+<meta name="keywords" content="data engineering, spark, kafka, python, kubernetes, lakehouse, delta lake, bootcamp, formation, tutoriel">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://diakite-data.github.io/data-engineering-bootcamp">
+
+
+<meta property="og:title" content="Introduction au Big Data &amp; Systèmes Distribués – Bootcamp Data Engineering">
+<meta property="og:description" content="Programme complet Data Engineering — Du débutant au Senior Engineer">
+<meta property="og:site_name" content="Bootcamp Data Engineering">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:title" content="Introduction au Big Data &amp; Systèmes Distribués – Bootcamp Data Engineering">
+<meta name="twitter:description" content="Programme complet Data Engineering — Du débutant au Senior Engineer">
+<meta name="twitter:creator" content="@diakite_data">
+<meta name="twitter:site" content="@diakite_data">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../../assets/images/logo.svg" alt="Data Engineering Bootcamp" class="navbar-logo light-content">
+    <img src="../../assets/images/logo.svg" alt="Data Engineering Bootcamp" class="navbar-logo dark-content">
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Recherche"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Basculer la navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">🏠 Accueil</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-programme" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">📘 Programme</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-programme">    
+        <li>
+    <a class="dropdown-item" href="../../notebooks/beginner/01_intro_data_engineering.html">
+ <span class="dropdown-text">🟦 Niveau Débutant</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../notebooks/intermediate/14_docker_for_data_engineers.html">
+ <span class="dropdown-text">🟩 Niveau Intermédiaire</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../notebooks/advanced/27_kubernetes_deep_dive.html">
+ <span class="dropdown-text">🟥 Niveau Avancé</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../../curriculum.html">
+ <span class="dropdown-text">📊 Vue d’ensemble</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-ressources" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">🛠️ Ressources</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-ressources">    
+        <li>
+    <a class="dropdown-item" href="../../resources/documentation.html">
+ <span class="dropdown-text">📚 Documentation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../resources/setup.html">
+ <span class="dropdown-text">🔧 Setup Environnement</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../resources/faq.html">
+ <span class="dropdown-text">❓ FAQ</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../../resources/links.html">
+ <span class="dropdown-text">🔗 Liens Utiles</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/diakite-data/data-engineering-bootcamp"> <i class="bi bi-github" role="img" aria-label="GitHub Repository">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre"><i class="bi"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Basculer en mode lecteur">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">🟦 Niveau 1 : Débutant</li><li class="breadcrumb-item"><a href="../../notebooks/beginner/08_intro_big_data_distributed.html">📊 Big Data &amp; NoSQL</a></li><li class="breadcrumb-item"><a href="../../notebooks/beginner/08_intro_big_data_distributed.html">08 · Introduction Big Data</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Recherche" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Recherche"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">🟦 Niveau 1 : Débutant</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">📌 Fondations</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/beginner/01_intro_data_engineering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">01 · Introduction au Data Engineering</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/beginner/02_bash_for_data_engineers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">02 · Linux &amp; Bash</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/beginner/03_git_for_data_engineers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">03 · Git &amp; Versioning</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">🐍 Python</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/beginner/04_python_basics_for_data_engineers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">04 · Python Fondamental</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/beginner/05_python_data_processing_for_data_engineers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">05 · Python Data Processing</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">🗄️ Bases de Données</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/beginner/06_intro_relational_databases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">06 · Introduction aux BDD Relationnelles</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/beginner/07_sql_for_data_engineers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">07 · SQL pour Data Engineers</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">📊 Big Data &amp; NoSQL</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/beginner/08_intro_big_data_distributed.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">08 · Introduction Big Data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/beginner/09_mongodb_for_data_engineers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">09 · MongoDB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/beginner/10_elasticsearch_for_data_engineers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10 · Elasticsearch</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">⚡ Spark &amp; Orchestration</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/beginner/11_pyspark_for_data_engineering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">11 · Introduction PySpark</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/beginner/12_orchestration_pipelines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">12 · Orchestration de Pipelines</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
+ <span class="menu-text">🎁 Bonus</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/beginner/13_fastapi_for_data_engineers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">13 · FastAPI pour Data Engineers</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/beginner/14_projet_integrateur_debutant.ipynb" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🎮 <strong>Projet Débutant</strong></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
+ <span class="menu-text">🟩 Niveau 2 : Intermédiaire</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text">🐳 Containers &amp; Cloud</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/intermediate/14_docker_for_data_engineers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">14 · Docker pour Data Engineers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/intermediate/15_kubernetes_fundamentals.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">15 · Kubernetes Fondamentaux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/intermediate/16_k8s_for_data_workloads.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">16 · K8s pour Data Workloads</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false">
+ <span class="menu-text">🚀 High Performance Python</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/intermediate/17_polars_for_data_engineering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">17 · Polars pour Data Engineering</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/intermediate/18_high_performance_python.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">18 · High Performance Python</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false">
+ <span class="menu-text">⚡ Spark Avancé</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/intermediate/19_pyspark_advanced.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">19 · PySpark Avancé</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/intermediate/20_spark_sql_deep_dive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">20 · Spark SQL Deep Dive</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/intermediate/21_spark_on_kubernetes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">21 · Spark on Kubernetes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false">
+ <span class="menu-text">🏠 Lakehouse &amp; Streaming &amp; Cloud</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/intermediate/22_cloud_and_object_storage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">22 · Cloud Object Storage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/intermediate/23_table_formats_delta_iceberg.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">23 · Table Formats (Delta, Iceberg)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/intermediate/24_kafka_streaming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">24 · Kafka &amp; Streaming</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">🔧 Industrialisation</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/intermediate/25_dbt_data_quality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">25 · dbt &amp; Data Quality</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/intermediate/26_projet_integrateur.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">📦 <strong>Projet Intermédiaire</strong> (Olist)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false">
+ <span class="menu-text">🟥 Niveau 3 : Avancé</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="false">
+ <span class="menu-text">☸️ Infrastructure Avancée</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-15" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/advanced/27_kubernetes_deep_dive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">27 · Kubernetes Deep Dive</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/advanced/28_advanced_orchestration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">28 · Orchestration Avancée</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/advanced/29_distributed_messaging.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">29 · Messaging Distribué (Kafka, Pulsar)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false">
+ <span class="menu-text">⚡ Processing Avancé</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-16" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/advanced/30_spark_scala_deep_dive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">30 · Spark &amp; Scala Deep Dive</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-17" role="navigation" aria-expanded="false">
+ <span class="menu-text">🤖 ML &amp; Analytics</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-17" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-17" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/advanced/31_data_engineering_for_ml.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">31 · Data Engineering pour le ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/advanced/33_realtime_olap_dashboards.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">33 · Realtime OLAP &amp; Dashboards</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-18" role="navigation" aria-expanded="false">
+ <span class="menu-text">🏛️ Architecture &amp; Governance</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-18" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-18" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/advanced/32_data_mesh_contracts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">32 · Data Mesh &amp; Contracts</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/advanced/34_architecture_patterns_decisions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">34 · Patterns &amp; Décisions d'Architecture</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false">
+ <span class="menu-text">👔 Leadership</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-19" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/advanced/35_leadership_tradeoffs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">35 · Leadership &amp; Trade-offs</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="2">
+    <h2 id="toc-title">📑 Sommaire</h2>
+   
+  <ul>
+  <li><a href="#prérequis" id="toc-prérequis" class="nav-link active" data-scroll-target="#prérequis">Prérequis</a></li>
+  <li><a href="#objectifs-du-module" id="toc-objectifs-du-module" class="nav-link" data-scroll-target="#objectifs-du-module">Objectifs du module</a></li>
+  <li><a href="#cest-quoi-le-big-data" id="toc-cest-quoi-le-big-data" class="nav-link" data-scroll-target="#cest-quoi-le-big-data">1. C’est quoi le Big Data ?</a>
+  <ul class="collapse">
+  <li><a href="#définition" id="toc-définition" class="nav-link" data-scroll-target="#définition">Définition</a></li>
+  <li><a href="#origine" id="toc-origine" class="nav-link" data-scroll-target="#origine">Origine</a></li>
+  <li><a href="#ordres-de-grandeur" id="toc-ordres-de-grandeur" class="nav-link" data-scroll-target="#ordres-de-grandeur">Ordres de grandeur</a></li>
+  <li><a href="#exemples-concrets" id="toc-exemples-concrets" class="nav-link" data-scroll-target="#exemples-concrets">Exemples concrets</a></li>
+  </ul></li>
+  <li><a href="#les-5v-du-big-data" id="toc-les-5v-du-big-data" class="nav-link" data-scroll-target="#les-5v-du-big-data">2. Les 5V du Big Data</a>
+  <ul class="collapse">
+  <li><a href="#volume-la-quantité-massive-de-données" id="toc-volume-la-quantité-massive-de-données" class="nav-link" data-scroll-target="#volume-la-quantité-massive-de-données">Volume — La quantité massive de données</a></li>
+  <li><a href="#velocity-la-vitesse-de-génération-et-traitement" id="toc-velocity-la-vitesse-de-génération-et-traitement" class="nav-link" data-scroll-target="#velocity-la-vitesse-de-génération-et-traitement">Velocity — La vitesse de génération et traitement</a></li>
+  <li><a href="#variety-la-diversité-des-formats" id="toc-variety-la-diversité-des-formats" class="nav-link" data-scroll-target="#variety-la-diversité-des-formats">Variety — La diversité des formats</a></li>
+  <li><a href="#veracity-la-fiabilité-des-données" id="toc-veracity-la-fiabilité-des-données" class="nav-link" data-scroll-target="#veracity-la-fiabilité-des-données">Veracity — La fiabilité des données</a></li>
+  <li><a href="#value-la-valeur-extraite" id="toc-value-la-valeur-extraite" class="nav-link" data-scroll-target="#value-la-valeur-extraite">Value — La valeur extraite</a></li>
+  </ul></li>
+  <li><a href="#pourquoi-le-traitement-distribué" id="toc-pourquoi-le-traitement-distribué" class="nav-link" data-scroll-target="#pourquoi-le-traitement-distribué">3. Pourquoi le traitement distribué ?</a>
+  <ul class="collapse">
+  <li><a href="#limites-dune-machine-unique" id="toc-limites-dune-machine-unique" class="nav-link" data-scroll-target="#limites-dune-machine-unique">Limites d’une machine unique</a></li>
+  <li><a href="#scale-up-vs-scale-out" id="toc-scale-up-vs-scale-out" class="nav-link" data-scroll-target="#scale-up-vs-scale-out">Scale-Up vs Scale-Out</a></li>
+  <li><a href="#le-big-data-utilise-le-scale-out" id="toc-le-big-data-utilise-le-scale-out" class="nav-link" data-scroll-target="#le-big-data-utilise-le-scale-out">Le Big Data utilise le Scale-Out !</a></li>
+  </ul></li>
+  <li><a href="#concepts-clés-du-traitement-distribué" id="toc-concepts-clés-du-traitement-distribué" class="nav-link" data-scroll-target="#concepts-clés-du-traitement-distribué">4. Concepts clés du traitement distribué</a>
+  <ul class="collapse">
+  <li><a href="#parallélisme-vs-distribution" id="toc-parallélisme-vs-distribution" class="nav-link" data-scroll-target="#parallélisme-vs-distribution">Parallélisme vs Distribution</a></li>
+  <li><a href="#data-locality-amener-le-code-aux-données" id="toc-data-locality-amener-le-code-aux-données" class="nav-link" data-scroll-target="#data-locality-amener-le-code-aux-données">Data Locality — “Amener le code aux données”</a></li>
+  <li><a href="#fault-tolerance-tolérance-aux-pannes" id="toc-fault-tolerance-tolérance-aux-pannes" class="nav-link" data-scroll-target="#fault-tolerance-tolérance-aux-pannes">Fault Tolerance — Tolérance aux pannes</a></li>
+  </ul></li>
+  <li><a href="#lécosystème-hadoop" id="toc-lécosystème-hadoop" class="nav-link" data-scroll-target="#lécosystème-hadoop">5. L’écosystème Hadoop</a>
+  <ul class="collapse">
+  <li><a href="#architecture" id="toc-architecture" class="nav-link" data-scroll-target="#architecture">🏗️ Architecture</a></li>
+  <li><a href="#hdfs-hadoop-distributed-file-system" id="toc-hdfs-hadoop-distributed-file-system" class="nav-link" data-scroll-target="#hdfs-hadoop-distributed-file-system">HDFS — Hadoop Distributed File System</a></li>
+  <li><a href="#yarn-yet-another-resource-negotiator" id="toc-yarn-yet-another-resource-negotiator" class="nav-link" data-scroll-target="#yarn-yet-another-resource-negotiator">YARN — Yet Another Resource Negotiator</a></li>
+  </ul></li>
+  <li><a href="#mapreduce-le-modèle-de-traitement" id="toc-mapreduce-le-modèle-de-traitement" class="nav-link" data-scroll-target="#mapreduce-le-modèle-de-traitement">6. MapReduce — Le modèle de traitement</a>
+  <ul class="collapse">
+  <li><a href="#les-3-étapes" id="toc-les-3-étapes" class="nav-link" data-scroll-target="#les-3-étapes">Les 3 étapes</a></li>
+  <li><a href="#exemple-word-count" id="toc-exemple-word-count" class="nav-link" data-scroll-target="#exemple-word-count">Exemple : Word Count</a></li>
+  <li><a href="#mapreduce-sur-un-cluster" id="toc-mapreduce-sur-un-cluster" class="nav-link" data-scroll-target="#mapreduce-sur-un-cluster">MapReduce sur un cluster</a></li>
+  </ul></li>
+  <li><a href="#limites-de-mapreduce" id="toc-limites-de-mapreduce" class="nav-link" data-scroll-target="#limites-de-mapreduce">7. Limites de MapReduce</a>
+  <ul class="collapse">
+  <li><a href="#problèmes-de-mapreduce" id="toc-problèmes-de-mapreduce" class="nav-link" data-scroll-target="#problèmes-de-mapreduce">Problèmes de MapReduce</a></li>
+  <li><a href="#le-problème-du-disque" id="toc-le-problème-du-disque" class="nav-link" data-scroll-target="#le-problème-du-disque">Le problème du disque</a></li>
+  <li><a href="#exemple-algorithme-itératif-ml" id="toc-exemple-algorithme-itératif-ml" class="nav-link" data-scroll-target="#exemple-algorithme-itératif-ml">Exemple : Algorithme itératif (ML)</a></li>
+  </ul></li>
+  <li><a href="#spark-lévolution" id="toc-spark-lévolution" class="nav-link" data-scroll-target="#spark-lévolution">8. Spark — L’évolution</a>
+  <ul class="collapse">
+  <li><a href="#comparaison-hadoop-mapreduce-vs-spark" id="toc-comparaison-hadoop-mapreduce-vs-spark" class="nav-link" data-scroll-target="#comparaison-hadoop-mapreduce-vs-spark">Comparaison Hadoop MapReduce vs Spark</a></li>
+  <li><a href="#architecture-spark" id="toc-architecture-spark" class="nav-link" data-scroll-target="#architecture-spark">Architecture Spark</a></li>
+  <li><a href="#concepts-spark-à-venir" id="toc-concepts-spark-à-venir" class="nav-link" data-scroll-target="#concepts-spark-à-venir">Concepts Spark à venir</a></li>
+  <li><a href="#ce-que-tu-vas-apprendre-avec-pyspark" id="toc-ce-que-tu-vas-apprendre-avec-pyspark" class="nav-link" data-scroll-target="#ce-que-tu-vas-apprendre-avec-pyspark">Ce que tu vas apprendre avec PySpark</a></li>
+  </ul></li>
+  <li><a href="#architectures-de-stockage-modernes" id="toc-architectures-de-stockage-modernes" class="nav-link" data-scroll-target="#architectures-de-stockage-modernes">9. Architectures de Stockage Modernes</a>
+  <ul class="collapse">
+  <li><a href="#data-lake-le-lac-de-données" id="toc-data-lake-le-lac-de-données" class="nav-link" data-scroll-target="#data-lake-le-lac-de-données">9.1 Data Lake — Le lac de données</a></li>
+  <li><a href="#data-lakehouse-le-meilleur-des-deux-mondes" id="toc-data-lakehouse-le-meilleur-des-deux-mondes" class="nav-link" data-scroll-target="#data-lakehouse-le-meilleur-des-deux-mondes">9.2 Data Lakehouse — Le meilleur des deux mondes</a></li>
+  <li><a href="#comparaison-warehouse-vs-lake-vs-lakehouse" id="toc-comparaison-warehouse-vs-lake-vs-lakehouse" class="nav-link" data-scroll-target="#comparaison-warehouse-vs-lake-vs-lakehouse">9.3 Comparaison : Warehouse vs Lake vs Lakehouse</a></li>
+  <li><a href="#medallion-architecture-bronze-silver-gold" id="toc-medallion-architecture-bronze-silver-gold" class="nav-link" data-scroll-target="#medallion-architecture-bronze-silver-gold">9.4 Medallion Architecture — Bronze, Silver, Gold</a></li>
+  </ul></li>
+  <li><a href="#architectures-de-traitement-lambda-kappa" id="toc-architectures-de-traitement-lambda-kappa" class="nav-link" data-scroll-target="#architectures-de-traitement-lambda-kappa">10. Architectures de Traitement — Lambda &amp; Kappa</a>
+  <ul class="collapse">
+  <li><a href="#lambda-architecture-batch-streaming" id="toc-lambda-architecture-batch-streaming" class="nav-link" data-scroll-target="#lambda-architecture-batch-streaming">10.1 Lambda Architecture — Batch + Streaming</a></li>
+  <li><a href="#kappa-architecture-streaming-first" id="toc-kappa-architecture-streaming-first" class="nav-link" data-scroll-target="#kappa-architecture-streaming-first">10.2 Kappa Architecture — Streaming-first</a></li>
+  <li><a href="#lambda-vs-kappa-quand-utiliser-quoi" id="toc-lambda-vs-kappa-quand-utiliser-quoi" class="nav-link" data-scroll-target="#lambda-vs-kappa-quand-utiliser-quoi">10.3 Lambda vs Kappa — Quand utiliser quoi ?</a></li>
+  </ul></li>
+  <li><a href="#data-mesh-lapproche-décentralisée" id="toc-data-mesh-lapproche-décentralisée" class="nav-link" data-scroll-target="#data-mesh-lapproche-décentralisée">11. Data Mesh — L’approche décentralisée</a>
+  <ul class="collapse">
+  <li><a href="#origine-du-problème" id="toc-origine-du-problème" class="nav-link" data-scroll-target="#origine-du-problème">Origine du problème</a></li>
+  <li><a href="#les-4-principes-du-data-mesh" id="toc-les-4-principes-du-data-mesh" class="nav-link" data-scroll-target="#les-4-principes-du-data-mesh">Les 4 principes du Data Mesh</a></li>
+  <li><a href="#architecture-data-mesh" id="toc-architecture-data-mesh" class="nav-link" data-scroll-target="#architecture-data-mesh">Architecture Data Mesh</a></li>
+  <li><a href="#data-mesh-vs-architecture-centralisée" id="toc-data-mesh-vs-architecture-centralisée" class="nav-link" data-scroll-target="#data-mesh-vs-architecture-centralisée">Data Mesh vs Architecture Centralisée</a></li>
+  </ul></li>
+  <li><a href="#nosql-au-delà-des-bases-relationnelles" id="toc-nosql-au-delà-des-bases-relationnelles" class="nav-link" data-scroll-target="#nosql-au-delà-des-bases-relationnelles">12. NoSQL — Au-delà des bases relationnelles</a>
+  <ul class="collapse">
+  <li><a href="#pourquoi-nosql" id="toc-pourquoi-nosql" class="nav-link" data-scroll-target="#pourquoi-nosql">Pourquoi NoSQL ?</a>
+  <ul class="collapse">
+  <li><a href="#les-limites-des-bases-relationnelles-face-au-big-data" id="toc-les-limites-des-bases-relationnelles-face-au-big-data" class="nav-link" data-scroll-target="#les-limites-des-bases-relationnelles-face-au-big-data">Les limites des bases relationnelles face au Big Data</a></li>
+  <li><a href="#la-solution-nosql" id="toc-la-solution-nosql" class="nav-link" data-scroll-target="#la-solution-nosql">La solution NoSQL</a></li>
+  </ul></li>
+  <li><a href="#les-4-types-de-bases-nosql" id="toc-les-4-types-de-bases-nosql" class="nav-link" data-scroll-target="#les-4-types-de-bases-nosql">Les 4 types de bases NoSQL</a>
+  <ul class="collapse">
+  <li><a href="#bases-document-mongodb-couchbase" id="toc-bases-document-mongodb-couchbase" class="nav-link" data-scroll-target="#bases-document-mongodb-couchbase">1. Bases Document (MongoDB, Couchbase)</a></li>
+  <li><a href="#bases-clé-valeur-redis-memcached" id="toc-bases-clé-valeur-redis-memcached" class="nav-link" data-scroll-target="#bases-clé-valeur-redis-memcached">2. Bases Clé-Valeur (Redis, Memcached)</a></li>
+  <li><a href="#bases-colonnes-cassandra-hbase" id="toc-bases-colonnes-cassandra-hbase" class="nav-link" data-scroll-target="#bases-colonnes-cassandra-hbase">3. Bases Colonnes (Cassandra, HBase)</a></li>
+  <li><a href="#bases-graphe-neo4j-amazon-neptune" id="toc-bases-graphe-neo4j-amazon-neptune" class="nav-link" data-scroll-target="#bases-graphe-neo4j-amazon-neptune">4. Bases Graphe (Neo4j, Amazon Neptune)</a></li>
+  </ul></li>
+  <li><a href="#le-théorème-cap" id="toc-le-théorème-cap" class="nav-link" data-scroll-target="#le-théorème-cap">Le théorème CAP</a>
+  <ul class="collapse">
+  <li><a href="#les-3-propriétés" id="toc-les-3-propriétés" class="nav-link" data-scroll-target="#les-3-propriétés">Les 3 propriétés</a></li>
+  <li><a href="#le-théorème-dit" id="toc-le-théorème-dit" class="nav-link" data-scroll-target="#le-théorème-dit">Le théorème dit :</a></li>
+  <li><a href="#classification-des-bases-selon-cap" id="toc-classification-des-bases-selon-cap" class="nav-link" data-scroll-target="#classification-des-bases-selon-cap">Classification des bases selon CAP</a></li>
+  </ul></li>
+  <li><a href="#sql-vs-nosql-quand-utiliser-quoi" id="toc-sql-vs-nosql-quand-utiliser-quoi" class="nav-link" data-scroll-target="#sql-vs-nosql-quand-utiliser-quoi">SQL vs NoSQL — Quand utiliser quoi ?</a>
+  <ul class="collapse">
+  <li><a href="#tableau-comparatif" id="toc-tableau-comparatif" class="nav-link" data-scroll-target="#tableau-comparatif">Tableau comparatif</a></li>
+  <li><a href="#utilise-sql-quand" id="toc-utilise-sql-quand" class="nav-link" data-scroll-target="#utilise-sql-quand">Utilise SQL quand…</a></li>
+  <li><a href="#utilise-nosql-quand" id="toc-utilise-nosql-quand" class="nav-link" data-scroll-target="#utilise-nosql-quand">Utilise NoSQL quand…</a></li>
+  <li><a href="#en-réalité-on-utilise-les-deux" id="toc-en-réalité-on-utilise-les-deux" class="nav-link" data-scroll-target="#en-réalité-on-utilise-les-deux">En réalité : on utilise les deux !</a></li>
+  </ul></li>
+  <li><a href="#résumé" id="toc-résumé" class="nav-link" data-scroll-target="#résumé">Résumé</a>
+  <ul class="collapse">
+  <li><a href="#les-5v-du-big-data-1" id="toc-les-5v-du-big-data-1" class="nav-link" data-scroll-target="#les-5v-du-big-data-1">Les 5V du Big Data</a></li>
+  <li><a href="#traitement-distribué" id="toc-traitement-distribué" class="nav-link" data-scroll-target="#traitement-distribué">Traitement distribué</a></li>
+  <li><a href="#hadoop-vs-spark" id="toc-hadoop-vs-spark" class="nav-link" data-scroll-target="#hadoop-vs-spark">Hadoop vs Spark</a></li>
+  <li><a href="#architectures-de-stockage" id="toc-architectures-de-stockage" class="nav-link" data-scroll-target="#architectures-de-stockage">Architectures de stockage</a></li>
+  <li><a href="#architectures-de-traitement" id="toc-architectures-de-traitement" class="nav-link" data-scroll-target="#architectures-de-traitement">Architectures de traitement</a></li>
+  <li><a href="#sql-vs-nosql" id="toc-sql-vs-nosql" class="nav-link" data-scroll-target="#sql-vs-nosql">SQL vs NoSQL</a></li>
+  </ul></li>
+  <li><a href="#quiz" id="toc-quiz" class="nav-link" data-scroll-target="#quiz">Quiz</a>
+  <ul class="collapse">
+  <li><a href="#q1.-quels-sont-les-3v-originaux-du-big-data" id="toc-q1.-quels-sont-les-3v-originaux-du-big-data" class="nav-link" data-scroll-target="#q1.-quels-sont-les-3v-originaux-du-big-data">❓ Q1. Quels sont les 3V originaux du Big Data ?</a></li>
+  <li><a href="#q2.-que-signifie-scale-out" id="toc-q2.-que-signifie-scale-out" class="nav-link" data-scroll-target="#q2.-que-signifie-scale-out">❓ Q2. Que signifie “Scale-out” ?</a></li>
+  <li><a href="#q3.-quel-est-le-principe-de-data-locality" id="toc-q3.-quel-est-le-principe-de-data-locality" class="nav-link" data-scroll-target="#q3.-quel-est-le-principe-de-data-locality">❓ Q3. Quel est le principe de “Data Locality” ?</a></li>
+  <li><a href="#q4.-quels-sont-les-3-composants-principaux-de-hadoop" id="toc-q4.-quels-sont-les-3-composants-principaux-de-hadoop" class="nav-link" data-scroll-target="#q4.-quels-sont-les-3-composants-principaux-de-hadoop">❓ Q4. Quels sont les 3 composants principaux de Hadoop ?</a></li>
+  <li><a href="#q5.-pourquoi-spark-est-plus-rapide-que-mapreduce" id="toc-q5.-pourquoi-spark-est-plus-rapide-que-mapreduce" class="nav-link" data-scroll-target="#q5.-pourquoi-spark-est-plus-rapide-que-mapreduce">❓ Q5. Pourquoi Spark est plus rapide que MapReduce ?</a></li>
+  <li><a href="#q6.-quelle-est-la-différence-entre-data-lake-et-data-lakehouse" id="toc-q6.-quelle-est-la-différence-entre-data-lake-et-data-lakehouse" class="nav-link" data-scroll-target="#q6.-quelle-est-la-différence-entre-data-lake-et-data-lakehouse">❓ Q6. Quelle est la différence entre Data Lake et Data Lakehouse ?</a></li>
+  <li><a href="#q7.-quelles-sont-les-3-couches-de-larchitecture-lambda" id="toc-q7.-quelles-sont-les-3-couches-de-larchitecture-lambda" class="nav-link" data-scroll-target="#q7.-quelles-sont-les-3-couches-de-larchitecture-lambda">❓ Q7. Quelles sont les 3 couches de l’architecture Lambda ?</a></li>
+  <li><a href="#q8.-quel-est-lavantage-principal-de-larchitecture-kappa-sur-lambda" id="toc-q8.-quel-est-lavantage-principal-de-larchitecture-kappa-sur-lambda" class="nav-link" data-scroll-target="#q8.-quel-est-lavantage-principal-de-larchitecture-kappa-sur-lambda">❓ Q8. Quel est l’avantage principal de l’architecture Kappa sur Lambda ?</a></li>
+  <li><a href="#q9.-quest-ce-quun-data-swamp" id="toc-q9.-quest-ce-quun-data-swamp" class="nav-link" data-scroll-target="#q9.-quest-ce-quun-data-swamp">❓ Q9. Qu’est-ce qu’un Data Swamp ?</a></li>
+  <li><a href="#q10.-quel-principe-du-data-mesh-dit-que-chaque-domaine-métier-est-responsable-de-ses-données" id="toc-q10.-quel-principe-du-data-mesh-dit-que-chaque-domaine-métier-est-responsable-de-ses-données" class="nav-link" data-scroll-target="#q10.-quel-principe-du-data-mesh-dit-que-chaque-domaine-métier-est-responsable-de-ses-données">❓ Q10. Quel principe du Data Mesh dit que chaque domaine métier est responsable de ses données ?</a></li>
+  <li><a href="#q11.-combien-de-copies-hdfs-fait-il-par-défaut" id="toc-q11.-combien-de-copies-hdfs-fait-il-par-défaut" class="nav-link" data-scroll-target="#q11.-combien-de-copies-hdfs-fait-il-par-défaut">❓ Q11. Combien de copies HDFS fait-il par défaut ?</a></li>
+  <li><a href="#q12.-quelle-base-nosql-est-idéale-pour-le-cache-et-les-sessions" id="toc-q12.-quelle-base-nosql-est-idéale-pour-le-cache-et-les-sessions" class="nav-link" data-scroll-target="#q12.-quelle-base-nosql-est-idéale-pour-le-cache-et-les-sessions">❓ Q12. Quelle base NoSQL est idéale pour le cache et les sessions ?</a></li>
+  <li><a href="#q13.-dans-larchitecture-medallion-quelle-couche-contient-les-données-brutes-non-transformées" id="toc-q13.-dans-larchitecture-medallion-quelle-couche-contient-les-données-brutes-non-transformées" class="nav-link" data-scroll-target="#q13.-dans-larchitecture-medallion-quelle-couche-contient-les-données-brutes-non-transformées">❓ Q13. Dans l’architecture Medallion, quelle couche contient les données brutes non transformées ?</a></li>
+  <li><a href="#q14.-quel-est-lordre-correct-de-qualité-croissante-dans-larchitecture-medallion" id="toc-q14.-quel-est-lordre-correct-de-qualité-croissante-dans-larchitecture-medallion" class="nav-link" data-scroll-target="#q14.-quel-est-lordre-correct-de-qualité-croissante-dans-larchitecture-medallion">❓ Q14. Quel est l’ordre correct de qualité croissante dans l’architecture Medallion ?</a></li>
+  </ul></li>
+  <li><a href="#ressources" id="toc-ressources" class="nav-link" data-scroll-target="#ressources">📚 Ressources</a>
+  <ul class="collapse">
+  <li><a href="#big-data-hadoop" id="toc-big-data-hadoop" class="nav-link" data-scroll-target="#big-data-hadoop">Big Data &amp; Hadoop</a></li>
+  <li><a href="#architectures-modernes" id="toc-architectures-modernes" class="nav-link" data-scroll-target="#architectures-modernes">Architectures modernes</a></li>
+  <li><a href="#nosql" id="toc-nosql" class="nav-link" data-scroll-target="#nosql">NoSQL</a></li>
+  </ul></li>
+  <li><a href="#prochaine-étape" id="toc-prochaine-étape" class="nav-link" data-scroll-target="#prochaine-étape">➡️ Prochaine étape</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/diakite-data/data-engineering-bootcamp/blob/main/notebooks/beginner/08_intro_big_data_distributed.ipynb" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/diakite-data/data-engineering-bootcamp/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li><li><a href="https://github.dev/diakite-data/data-engineering-bootcamp/blob/main/notebooks/beginner/08_intro_big_data_distributed.ipynb" class="toc-action"><i class="bi empty"></i>Modifier cette page</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">🟦 Niveau 1 : Débutant</li><li class="breadcrumb-item"><a href="../../notebooks/beginner/08_intro_big_data_distributed.html">📊 Big Data &amp; NoSQL</a></li><li class="breadcrumb-item"><a href="../../notebooks/beginner/08_intro_big_data_distributed.html">08 · Introduction Big Data</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Introduction au Big Data &amp; Systèmes Distribués</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<hr>
+<section id="prérequis" class="level2">
+<h2 class="anchored" data-anchor-id="prérequis">Prérequis</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Niveau</th>
+<th>Compétence</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>✅ Requis</td>
+<td>Avoir suivi le module <code>06_intro_relational_databases</code></td>
+</tr>
+<tr class="even">
+<td>✅ Requis</td>
+<td>Avoir suivi le module <code>07_sql_for_data_engineers</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="objectifs-du-module" class="level2">
+<h2 class="anchored" data-anchor-id="objectifs-du-module">Objectifs du module</h2>
+<p>À la fin de ce notebook, tu seras capable de :</p>
+<ul>
+<li>Comprendre ce qu’est le Big Data et ses caractéristiques (5V)</li>
+<li>Expliquer pourquoi le traitement distribué est nécessaire</li>
+<li>Décrire l’architecture Hadoop (HDFS, MapReduce, YARN)</li>
+<li>Comprendre le modèle MapReduce</li>
+<li>Expliquer pourquoi Spark a remplacé MapReduce</li>
+<li>Différencier Data Lake et Data Lakehouse</li>
+<li>Comprendre les architectures Lambda et Kappa</li>
+<li>Connaître le concept de Data Mesh</li>
+<li>Comprendre l’architecture Medallion (Bronze/Silver/Gold)</li>
+<li>Comprendre le NoSQL et ses différents types</li>
+<li>Savoir quand utiliser SQL vs NoSQL</li>
+<li>Connaître le théorème CAP</li>
+</ul>
+<hr>
+<blockquote class="blockquote">
+<p>💡 <strong>Note</strong> : Ce module est théorique. La pratique viendra avec MongoDB (module suivant) et PySpark !</p>
+</blockquote>
+<hr>
+</section>
+<section id="cest-quoi-le-big-data" class="level2">
+<h2 class="anchored" data-anchor-id="cest-quoi-le-big-data">1. C’est quoi le Big Data ?</h2>
+<section id="définition" class="level3">
+<h3 class="anchored" data-anchor-id="définition">Définition</h3>
+<p>Le <strong>Big Data</strong> désigne des ensembles de données <strong>tellement volumineux et complexes</strong> qu’ils ne peuvent pas être traités par des outils traditionnels (Excel, bases SQL classiques, un seul serveur).</p>
+</section>
+<section id="origine" class="level3">
+<h3 class="anchored" data-anchor-id="origine">Origine</h3>
+<p>Le terme a émergé dans les années <strong>2000</strong> avec l’explosion :</p>
+<ul>
+<li>D’Internet et des réseaux sociaux</li>
+<li>Des smartphones</li>
+<li>Des capteurs IoT</li>
+<li>Des transactions en ligne</li>
+</ul>
+</section>
+<section id="ordres-de-grandeur" class="level3">
+<h3 class="anchored" data-anchor-id="ordres-de-grandeur">Ordres de grandeur</h3>
+<pre><code>1 Ko  (Kilooctet)   = 1 page de texte
+1 Mo  (Mégaoctet)   = 1 photo HD
+1 Go  (Gigaoctet)   = 1 film HD
+1 To  (Téraoctet)   = 1 000 films HD
+1 Po  (Pétaoctet)   = 1 000 To = 1 million de Go
+1 Eo  (Exaoctet)    = 1 000 Po
+1 Zo  (Zettaoctet)  = 1 000 Eo</code></pre>
+</section>
+<section id="exemples-concrets" class="level3">
+<h3 class="anchored" data-anchor-id="exemples-concrets">Exemples concrets</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Entreprise</th>
+<th>Volume de données</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Facebook</td>
+<td>~4 <strong>Po</strong> générés par jour</td>
+</tr>
+<tr class="even">
+<td>Google</td>
+<td>~20 <strong>Po</strong> traités par jour</td>
+</tr>
+<tr class="odd">
+<td>Netflix</td>
+<td>~60 <strong>Po</strong> de vidéos stockées</td>
+</tr>
+<tr class="even">
+<td>CERN (LHC)</td>
+<td>~1 <strong>Po</strong> par seconde pendant les expériences</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="les-5v-du-big-data" class="level2">
+<h2 class="anchored" data-anchor-id="les-5v-du-big-data">2. Les 5V du Big Data</h2>
+<p>Les caractéristiques du Big Data sont souvent résumées par les <strong>5V</strong> :</p>
+<pre><code>                    ┌─────────────┐
+                    │   VOLUME    │
+                    │  (quantité) │
+                    └──────┬──────┘
+                           │
+        ┌──────────────────┼──────────────────┐
+        │                  │                  │
+        ▼                  ▼                  ▼
+┌───────────────┐  ┌───────────────┐  ┌───────────────┐
+│   VELOCITY    │  │   VARIETY     │  │   VERACITY    │
+│   (vitesse)   │  │  (diversité)  │  │  (fiabilité)  │
+└───────────────┘  └───────────────┘  └───────────────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │    VALUE    │
+                    │  (valeur)   │
+                    └─────────────┘</code></pre>
+<hr>
+<section id="volume-la-quantité-massive-de-données" class="level3">
+<h3 class="anchored" data-anchor-id="volume-la-quantité-massive-de-données">Volume — La quantité massive de données</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 37%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Défi</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Impossible de stocker sur un seul disque</td>
+<td>Stockage distribué (HDFS, S3)</td>
+</tr>
+<tr class="even">
+<td>Impossible de charger en RAM</td>
+<td>Traitement par partitions</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="velocity-la-vitesse-de-génération-et-traitement" class="level3">
+<h3 class="anchored" data-anchor-id="velocity-la-vitesse-de-génération-et-traitement">Velocity — La vitesse de génération et traitement</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Exemple</th>
+<th>Latence</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Batch</strong></td>
+<td>Rapport mensuel</td>
+<td>Heures</td>
+</tr>
+<tr class="even">
+<td><strong>Near real-time</strong></td>
+<td>Dashboard</td>
+<td>Minutes</td>
+</tr>
+<tr class="odd">
+<td><strong>Real-time / Streaming</strong></td>
+<td>Détection de fraude</td>
+<td>Millisecondes</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="variety-la-diversité-des-formats" class="level3">
+<h3 class="anchored" data-anchor-id="variety-la-diversité-des-formats">Variety — La diversité des formats</h3>
+<blockquote class="blockquote">
+<p>💡 <strong>Rappel</strong> : Tu as déjà vu ça dans le module 06 !</p>
+</blockquote>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 36%">
+<col style="width: 36%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Format</th>
+<th>Exemple</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Structuré</strong></td>
+<td>Tables, colonnes fixes</td>
+<td>SQL, CSV</td>
+</tr>
+<tr class="even">
+<td><strong>Semi-structuré</strong></td>
+<td>Schéma flexible</td>
+<td>JSON, XML (MongoDB, Elasticsearch)</td>
+</tr>
+<tr class="odd">
+<td><strong>Non-structuré</strong></td>
+<td>Pas de schéma</td>
+<td>Images, vidéos, texte libre</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="veracity-la-fiabilité-des-données" class="level3">
+<h3 class="anchored" data-anchor-id="veracity-la-fiabilité-des-données">Veracity — La fiabilité des données</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Problème</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Données manquantes</td>
+<td>Résultats biaisés</td>
+</tr>
+<tr class="even">
+<td>Doublons</td>
+<td>Comptages faux</td>
+</tr>
+<tr class="odd">
+<td>Erreurs de saisie</td>
+<td>Mauvaises décisions</td>
+</tr>
+<tr class="even">
+<td>Données obsolètes</td>
+<td>Analyses non pertinentes</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="blockquote">
+<p>💡 C’est là que le <strong>Data Engineer</strong> intervient : nettoyer, valider, transformer !</p>
+</blockquote>
+<hr>
+</section>
+<section id="value-la-valeur-extraite" class="level3">
+<h3 class="anchored" data-anchor-id="value-la-valeur-extraite">Value — La valeur extraite</h3>
+<p>Les données n’ont de valeur que si on peut en tirer des <strong>insights</strong> : - Prédictions (ML) - Dashboards - Alertes - Optimisation business.</p>
+<hr>
+</section>
+</section>
+<section id="pourquoi-le-traitement-distribué" class="level2">
+<h2 class="anchored" data-anchor-id="pourquoi-le-traitement-distribué">3. Pourquoi le traitement distribué ?</h2>
+<section id="limites-dune-machine-unique" class="level3">
+<h3 class="anchored" data-anchor-id="limites-dune-machine-unique">Limites d’une machine unique</h3>
+<p>Imaginons que tu dois traiter <strong>10 To</strong> de logs :</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Ressource</th>
+<th>Limite typique</th>
+<th>Problème</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>RAM</strong></td>
+<td>64-256 Go</td>
+<td>10 To ne tient pas en mémoire</td>
+</tr>
+<tr class="even">
+<td><strong>CPU</strong></td>
+<td>8-64 cœurs</td>
+<td>Traitement séquentiel = trop lent</td>
+</tr>
+<tr class="odd">
+<td><strong>Disque</strong></td>
+<td>500 Mo/s lecture</td>
+<td>10 To = 5+ heures juste pour lire</td>
+</tr>
+<tr class="even">
+<td><strong>Réseau</strong></td>
+<td>Goulot d’étranglement</td>
+<td>Transférer 10 To = des heures</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="scale-up-vs-scale-out" class="level3">
+<h3 class="anchored" data-anchor-id="scale-up-vs-scale-out">Scale-Up vs Scale-Out</h3>
+<pre><code>SCALE-UP (vertical)              SCALE-OUT (horizontal)
+─────────────────────            ─────────────────────────
+
+   ┌─────────────┐               ┌───┐ ┌───┐ ┌───┐ ┌───┐
+   │             │               │   │ │   │ │   │ │   │
+   │   MEGA      │               │ S │ │ S │ │ S │ │ S │
+   │  SERVEUR    │      vs       │ 1 │ │ 2 │ │ 3 │ │ 4 │
+   │   💪💪💪    │               │   │ │   │ │   │ │   │
+   │             │               └───┘ └───┘ └───┘ └───┘
+   └─────────────┘               
+                                 Cluster de serveurs
+   + Plus de RAM                 + Moins cher (commodity)
+   + Plus de CPU                 + Scalabilité infinie
+   - Très cher $$$               + Tolérance aux pannes
+   - Limite physique             - Plus complexe</code></pre>
+</section>
+<section id="le-big-data-utilise-le-scale-out" class="level3">
+<h3 class="anchored" data-anchor-id="le-big-data-utilise-le-scale-out">Le Big Data utilise le Scale-Out !</h3>
+<p>Au lieu d’une machine surpuissante, on utilise un <strong>cluster</strong> de machines ordinaires.</p>
+<hr>
+</section>
+</section>
+<section id="concepts-clés-du-traitement-distribué" class="level2">
+<h2 class="anchored" data-anchor-id="concepts-clés-du-traitement-distribué">4. Concepts clés du traitement distribué</h2>
+<section id="parallélisme-vs-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="parallélisme-vs-distribution">Parallélisme vs Distribution</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 43%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Concept</th>
+<th>Description</th>
+<th>Exemple</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Parallélisme</strong></td>
+<td>Plusieurs tâches en même temps sur <strong>une machine</strong></td>
+<td>Multi-threading</td>
+</tr>
+<tr class="even">
+<td><strong>Distribution</strong></td>
+<td>Tâches réparties sur <strong>plusieurs machines</strong></td>
+<td>Cluster Hadoop/Spark</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="data-locality-amener-le-code-aux-données" class="level3">
+<h3 class="anchored" data-anchor-id="data-locality-amener-le-code-aux-données">Data Locality — “Amener le code aux données”</h3>
+<pre><code>❌ MAUVAIS : Déplacer les données vers le code
+┌────────────────┐                ┌────────────────┐
+│   Serveur 1    │  ══10 To══►    │   Serveur 2    │
+│   (données)    │   réseau       │    (calcul)    │
+└────────────────┘   lent !       └────────────────┘
+
+✅ BON : Déplacer le code vers les données
+┌────────────────┐                ┌────────────────┐
+│   Serveur 1    │  ◄══code══     │   Serveur 2    │
+│ données+calcul │   (petit)      │    (master)    │
+└────────────────┘                └────────────────┘</code></pre>
+<blockquote class="blockquote">
+<p>💡 C’est le principe fondamental de Hadoop et Spark !</p>
+</blockquote>
+<hr>
+</section>
+<section id="fault-tolerance-tolérance-aux-pannes" class="level3">
+<h3 class="anchored" data-anchor-id="fault-tolerance-tolérance-aux-pannes">Fault Tolerance — Tolérance aux pannes</h3>
+<p>Dans un cluster de 1000 machines, <strong>des pannes arrivent tous les jours</strong> !</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 45%">
+<col style="width: 54%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Stratégie</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Réplication</strong></td>
+<td>Copier les données sur plusieurs nœuds (HDFS : 3 copies)</td>
+</tr>
+<tr class="even">
+<td><strong>Checkpointing</strong></td>
+<td>Sauvegarder l’état intermédiaire</td>
+</tr>
+<tr class="odd">
+<td><strong>Lineage</strong></td>
+<td>Recalculer les données perdues (Spark RDD)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="lécosystème-hadoop" class="level2">
+<h2 class="anchored" data-anchor-id="lécosystème-hadoop">5. L’écosystème Hadoop</h2>
+<p><strong>Hadoop</strong> est un framework open-source créé par Yahoo (2006), inspiré des papiers de Google (GFS, MapReduce).</p>
+<section id="architecture" class="level3">
+<h3 class="anchored" data-anchor-id="architecture">🏗️ Architecture</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                    ÉCOSYSTÈME HADOOP                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐       │
+│   │  Hive   │  │   Pig   │  │  HBase  │  │  Sqoop  │  ...  │
+│   │  (SQL)  │  │(scripts)│  │ (NoSQL) │  │ (import)│       │
+│   └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘       │
+│        │            │            │            │             │
+│        └────────────┴─────┬──────┴────────────┘             │
+│                           │                                 │
+│                    ┌──────┴──────┐                         │
+│                    │  MapReduce  │  ◄── Traitement         │
+│                    │  (calcul)   │                         │
+│                    └──────┬──────┘                         │
+│                           │                                 │
+│                    ┌──────┴──────┐                         │
+│                    │    YARN     │  ◄── Ressources         │
+│                    │ (scheduler) │                         │
+│                    └──────┬──────┘                         │
+│                           │                                 │
+│                    ┌──────┴──────┐                         │
+│                    │    HDFS     │  ◄── Stockage           │
+│                    │  (fichiers) │                         │
+│                    └─────────────┘                         │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+<hr>
+</section>
+<section id="hdfs-hadoop-distributed-file-system" class="level3">
+<h3 class="anchored" data-anchor-id="hdfs-hadoop-distributed-file-system">HDFS — Hadoop Distributed File System</h3>
+<p>Système de fichiers distribué qui stocke les données sur plusieurs machines.</p>
+<pre><code>Fichier original : data.csv (300 Mo)
+                      │
+        ┌─────────────┼─────────────┐
+        ▼             ▼             ▼
+   ┌─────────┐   ┌─────────┐   ┌─────────┐
+   │ Block 1 │   │ Block 2 │   │ Block 3 │   (128 Mo chacun)
+   │ 128 Mo  │   │ 128 Mo  │   │  44 Mo  │
+   └────┬────┘   └────┬────┘   └────┬────┘
+        │             │             │
+   Répliqué 3x   Répliqué 3x   Répliqué 3x</code></pre>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Caractéristique</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Taille de bloc</td>
+<td>128 Mo</td>
+</tr>
+<tr class="even">
+<td>Facteur de réplication</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>Type d’accès</td>
+<td>Write once, read many</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="yarn-yet-another-resource-negotiator" class="level3">
+<h3 class="anchored" data-anchor-id="yarn-yet-another-resource-negotiator">YARN — Yet Another Resource Negotiator</h3>
+<p>Gestionnaire de ressources du cluster :</p>
+<ul>
+<li>Alloue CPU/RAM aux applications</li>
+<li>Gère la file d’attente des jobs</li>
+<li>Surveille l’état des nœuds.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="mapreduce-le-modèle-de-traitement" class="level2">
+<h2 class="anchored" data-anchor-id="mapreduce-le-modèle-de-traitement">6. MapReduce — Le modèle de traitement</h2>
+<p><strong>MapReduce</strong> est un modèle de programmation pour traiter de grandes quantités de données en parallèle.</p>
+<section id="les-3-étapes" class="level3">
+<h3 class="anchored" data-anchor-id="les-3-étapes">Les 3 étapes</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Étape</th>
+<th>Action</th>
+<th>Parallélisme</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Map</strong></td>
+<td>Transformer chaque élément</td>
+<td>✅ Parallèle</td>
+</tr>
+<tr class="even">
+<td><strong>Shuffle</strong></td>
+<td>Regrouper par clé</td>
+<td>⚠️ Réseau</td>
+</tr>
+<tr class="odd">
+<td><strong>Reduce</strong></td>
+<td>Agréger les valeurs</td>
+<td>✅ Parallèle</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="exemple-word-count" class="level3">
+<h3 class="anchored" data-anchor-id="exemple-word-count">Exemple : Word Count</h3>
+<p>Compter les occurrences de chaque mot dans un texte.</p>
+<pre><code>ENTRÉE : "hello world hello"
+
+═══════════════════════════════════════════════════════════════════
+                              MAP
+═══════════════════════════════════════════════════════════════════
+
+  "hello world hello"   
+         │
+         ▼
+  ┌──────────────────────────────────────┐
+  │  (hello, 1)  (world, 1)  (hello, 1)  │
+  └──────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════
+                            SHUFFLE
+═══════════════════════════════════════════════════════════════════
+
+  Regrouper par clé (mot) :
+  
+  hello → [1, 1]
+  world → [1]
+
+═══════════════════════════════════════════════════════════════════
+                            REDUCE
+═══════════════════════════════════════════════════════════════════
+
+  hello → sum([1, 1]) → 2
+  world → sum([1])    → 1
+
+═══════════════════════════════════════════════════════════════════
+
+SORTIE : { "hello": 2, "world": 1 }</code></pre>
+<hr>
+</section>
+<section id="mapreduce-sur-un-cluster" class="level3">
+<h3 class="anchored" data-anchor-id="mapreduce-sur-un-cluster">MapReduce sur un cluster</h3>
+<pre><code>                         ┌─────────────┐
+                         │   MASTER    │
+                         │  (Driver)   │
+                         └──────┬──────┘
+                                │
+           ┌────────────────────┼────────────────────┐
+           │                    │                    │
+           ▼                    ▼                    ▼
+    ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+    │   NODE 1    │      │   NODE 2    │      │   NODE 3    │
+    ├─────────────┤      ├─────────────┤      ├─────────────┤
+    │ Données:    │      │ Données:    │      │ Données:    │
+    │ "hello"     │      │ "world"     │      │ "hello"     │
+    ├─────────────┤      ├─────────────┤      ├─────────────┤
+    │ MAP:        │      │ MAP:        │      │ MAP:        │
+    │ (hello, 1)  │      │ (world, 1)  │      │ (hello, 1)  │
+    └──────┬──────┘      └──────┬──────┘      └──────┬──────┘
+           │                    │                    │
+           └────────────────────┼────────────────────┘
+                                │
+                         SHUFFLE (réseau)
+                                │
+           ┌────────────────────┴────────────────────┐
+           ▼                                         ▼
+    ┌─────────────┐                           ┌─────────────┐
+    │  REDUCER 1  │                           │  REDUCER 2  │
+    ├─────────────┤                           ├─────────────┤
+    │ hello: [1,1]│                           │ world: [1]  │
+    │ → hello: 2  │                           │ → world: 1  │
+    └─────────────┘                           └─────────────┘</code></pre>
+<blockquote class="blockquote">
+<p>💡 Chaque nœud traite <strong>ses données localement</strong> (data locality) !</p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="limites-de-mapreduce" class="level2">
+<h2 class="anchored" data-anchor-id="limites-de-mapreduce">7. Limites de MapReduce</h2>
+<section id="problèmes-de-mapreduce" class="level3">
+<h3 class="anchored" data-anchor-id="problèmes-de-mapreduce">Problèmes de MapReduce</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 40%">
+<col style="width: 28%">
+<col style="width: 32%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Problème</th>
+<th>Cause</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Lent</strong></td>
+<td>Écrit sur disque entre chaque étape</td>
+<td>I/O intensif</td>
+</tr>
+<tr class="even">
+<td><strong>Verbose</strong></td>
+<td>Code Java complexe</td>
+<td>Productivité basse</td>
+</tr>
+<tr class="odd">
+<td><strong>Batch only</strong></td>
+<td>Pas de streaming</td>
+<td>Pas de temps réel</td>
+</tr>
+<tr class="even">
+<td><strong>Pas de cache</strong></td>
+<td>Relit les données à chaque job</td>
+<td>Itérations lentes (ML)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="le-problème-du-disque" class="level3">
+<h3 class="anchored" data-anchor-id="le-problème-du-disque">Le problème du disque</h3>
+<pre><code>MapReduce : DISQUE → Map → DISQUE → Shuffle → DISQUE → Reduce → DISQUE
+                 ↑           ↑              ↑              ↑
+                 └───────────┴──────────────┴──────────────┘
+                              LENT ! (I/O disque)
+
+Spark :     DISQUE → Map → MÉMOIRE → Shuffle → MÉMOIRE → Reduce
+                            ↑                    ↑
+                            └────────────────────┘
+                              RAPIDE ! (in-memory)</code></pre>
+<hr>
+</section>
+<section id="exemple-algorithme-itératif-ml" class="level3">
+<h3 class="anchored" data-anchor-id="exemple-algorithme-itératif-ml">Exemple : Algorithme itératif (ML)</h3>
+<p>Pour un algorithme qui fait 10 itérations sur les mêmes données :</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Framework</th>
+<th>Comportement</th>
+<th>Temps</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>MapReduce</strong></td>
+<td>Relit les données du disque 10 fois</td>
+<td>😓</td>
+</tr>
+<tr class="even">
+<td><strong>Spark</strong></td>
+<td>Garde les données en mémoire, itère 10 fois</td>
+<td>⚡</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="spark-lévolution" class="level2">
+<h2 class="anchored" data-anchor-id="spark-lévolution">8. Spark — L’évolution</h2>
+<p><strong>Apache Spark</strong> (2014) a été créé pour résoudre les limitations de MapReduce.</p>
+<section id="comparaison-hadoop-mapreduce-vs-spark" class="level3">
+<h3 class="anchored" data-anchor-id="comparaison-hadoop-mapreduce-vs-spark">Comparaison Hadoop MapReduce vs Spark</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Critère</th>
+<th>Hadoop MapReduce</th>
+<th>Apache Spark</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Vitesse</strong></td>
+<td>Lent (disque)</td>
+<td>100x plus rapide (mémoire)</td>
+</tr>
+<tr class="even">
+<td><strong>Facilité</strong></td>
+<td>Java verbeux</td>
+<td>Python, Scala, SQL</td>
+</tr>
+<tr class="odd">
+<td><strong>Traitement</strong></td>
+<td>Batch only</td>
+<td>Batch + Streaming</td>
+</tr>
+<tr class="even">
+<td><strong>Itérations</strong></td>
+<td>Lent (relit le disque)</td>
+<td>Rapide (cache en RAM)</td>
+</tr>
+<tr class="odd">
+<td><strong>Écosystème</strong></td>
+<td>Hive, Pig, etc.</td>
+<td>Spark SQL, MLlib, GraphX</td>
+</tr>
+<tr class="even">
+<td><strong>Stockage</strong></td>
+<td>HDFS</td>
+<td>HDFS, S3, Cassandra, etc.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="architecture-spark" class="level3">
+<h3 class="anchored" data-anchor-id="architecture-spark">Architecture Spark</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                      APACHE SPARK                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐  │
+│   │ Spark SQL │ │ Streaming │ │   MLlib   │ │  GraphX   │  │
+│   │  (SQL)    │ │ (temps    │ │   (ML)    │ │ (graphes) │  │
+│   │           │ │   réel)   │ │           │ │           │  │
+│   └─────┬─────┘ └─────┬─────┘ └─────┬─────┘ └─────┬─────┘  │
+│         │             │             │             │        │
+│         └─────────────┴──────┬──────┴─────────────┘        │
+│                              │                              │
+│                       ┌──────┴──────┐                      │
+│                       │ Spark Core  │                      │
+│                       │   (RDD)     │                      │
+│                       └──────┬──────┘                      │
+│                              │                              │
+│         ┌────────────────────┼────────────────────┐        │
+│         ▼                    ▼                    ▼        │
+│   ┌──────────┐        ┌──────────┐        ┌──────────┐    │
+│   │   YARN   │        │   Mesos  │        │Standalone│    │
+│   └──────────┘        └──────────┘        └──────────┘    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+<blockquote class="blockquote">
+<p>💡 Spark peut fonctionner <strong>sur YARN</strong> (cluster Hadoop existant) ou en mode standalone.</p>
+</blockquote>
+<hr>
+</section>
+<section id="concepts-spark-à-venir" class="level3">
+<h3 class="anchored" data-anchor-id="concepts-spark-à-venir">Concepts Spark à venir</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 40%">
+<col style="width: 59%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Concept</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>RDD</strong></td>
+<td>Resilient Distributed Dataset — collection distribuée</td>
+</tr>
+<tr class="even">
+<td><strong>DataFrame</strong></td>
+<td>Comme un tableau avec colonnes (similaire à Pandas)</td>
+</tr>
+<tr class="odd">
+<td><strong>Transformation</strong></td>
+<td>Opération lazy (map, filter, groupBy)</td>
+</tr>
+<tr class="even">
+<td><strong>Action</strong></td>
+<td>Déclenche le calcul (collect, count, show)</td>
+</tr>
+<tr class="odd">
+<td><strong>Lazy Evaluation</strong></td>
+<td>Rien ne s’exécute tant qu’une action n’est pas appelée</td>
+</tr>
+<tr class="even">
+<td><strong>Partition</strong></td>
+<td>Morceau de données traité par un worker</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="ce-que-tu-vas-apprendre-avec-pyspark" class="level3">
+<h3 class="anchored" data-anchor-id="ce-que-tu-vas-apprendre-avec-pyspark">Ce que tu vas apprendre avec PySpark</h3>
+<ul>
+<li>Créer et manipuler des DataFrames distribués</li>
+<li>Écrire des transformations SQL-like</li>
+<li>Lire/écrire des fichiers (CSV, Parquet, JSON)</li>
+<li>Optimiser les performances</li>
+<li>Construire des pipelines de données</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="architectures-de-stockage-modernes" class="level2">
+<h2 class="anchored" data-anchor-id="architectures-de-stockage-modernes">9. Architectures de Stockage Modernes</h2>
+<p>Maintenant que tu connais le Big Data et le traitement distribué, voyons comment <strong>organiser et stocker</strong> ces données.</p>
+<blockquote class="blockquote">
+<p>💡 <strong>Rappel</strong> : Tu as vu Data Warehouse et Data Mart dans le module 06. Ici, on complète avec Data Lake et Lakehouse !</p>
+</blockquote>
+<hr>
+<section id="data-lake-le-lac-de-données" class="level3">
+<h3 class="anchored" data-anchor-id="data-lake-le-lac-de-données">9.1 Data Lake — Le lac de données</h3>
+<p>Un <strong>Data Lake</strong> est un système de stockage qui contient une <strong>grande quantité de données brutes</strong> dans leur format natif.</p>
+<section id="définition-1" class="level4">
+<h4 class="anchored" data-anchor-id="définition-1">Définition</h4>
+<blockquote class="blockquote">
+<p>“Un Data Lake est un référentiel centralisé qui permet de stocker toutes les données structurées et non structurées à n’importe quelle échelle.”</p>
+</blockquote>
+</section>
+<section id="caractéristiques" class="level4">
+<h4 class="anchored" data-anchor-id="caractéristiques">Caractéristiques</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 56%">
+<col style="width: 43%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Caractéristique</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Schema-on-read</strong></td>
+<td>Pas de schéma défini à l’écriture, appliqué à la lecture</td>
+</tr>
+<tr class="even">
+<td><strong>Tous formats</strong></td>
+<td>Structuré, semi-structuré, non-structuré</td>
+</tr>
+<tr class="odd">
+<td><strong>Stockage brut</strong></td>
+<td>Données dans leur format original</td>
+</tr>
+<tr class="even">
+<td><strong>Scalabilité</strong></td>
+<td>Pétaoctets de données</td>
+</tr>
+<tr class="odd">
+<td><strong>Coût faible</strong></td>
+<td>Stockage object (S3, ADLS, GCS)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="exemples-de-data-lakes" class="level4">
+<h4 class="anchored" data-anchor-id="exemples-de-data-lakes">Exemples de Data Lakes</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Produit</th>
+<th>Provider</th>
+<th>Stockage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Amazon S3</strong></td>
+<td>AWS</td>
+<td>Object storage</td>
+</tr>
+<tr class="even">
+<td><strong>Azure Data Lake Storage (ADLS)</strong></td>
+<td>Azure</td>
+<td>Object storage</td>
+</tr>
+<tr class="odd">
+<td><strong>Google Cloud Storage (GCS)</strong></td>
+<td>GCP</td>
+<td>Object storage</td>
+</tr>
+<tr class="even">
+<td><strong>HDFS</strong></td>
+<td>On-premise</td>
+<td>Distributed filesystem</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="le-piège-data-swamp-marécage-de-données" class="level4">
+<h4 class="anchored" data-anchor-id="le-piège-data-swamp-marécage-de-données">Le piège : Data Swamp (Marécage de données)</h4>
+<pre><code>❌ DATA SWAMP — Ce qu'il faut éviter :
+
+┌─────────────────────────────────────────────────────────────────┐
+│                       DATA LAKE                                 │
+│                                                                 │
+│   📁 old_data/                  📁 test_final_v2_FINAL/         │
+│   📁 backup_2019/               📁 john_analysis/               │
+│   📄 data.csv                   📄 data_new.csv                 │
+│   📄 data_copy.csv              📄 ???.parquet                  │
+│   📁 temp/                      📁 DO_NOT_DELETE/               │
+│                                                                 │
+│   😱 Personne ne sait ce que contiennent ces fichiers !        │
+│   😱 Pas de documentation                                       │
+│   😱 Données dupliquées, obsolètes, invalides                   │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+<blockquote class="blockquote">
+<p>💡 Sans <strong>gouvernance</strong>, un Data Lake devient un Data Swamp inutilisable !</p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="data-lakehouse-le-meilleur-des-deux-mondes" class="level3">
+<h3 class="anchored" data-anchor-id="data-lakehouse-le-meilleur-des-deux-mondes">9.2 Data Lakehouse — Le meilleur des deux mondes</h3>
+<p>Un <strong>Data Lakehouse</strong> combine les avantages du Data Lake (flexibilité, coût) et du Data Warehouse (performance, ACID).</p>
+<section id="définition-2" class="level4">
+<h4 class="anchored" data-anchor-id="définition-2">Définition</h4>
+<blockquote class="blockquote">
+<p>“Un Lakehouse est une nouvelle architecture qui combine les meilleurs éléments des Data Lakes et des Data Warehouses.”</p>
+</blockquote>
+</section>
+<section id="technologies-clés" class="level4">
+<h4 class="anchored" data-anchor-id="technologies-clés">Technologies clés</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Technologie</th>
+<th>Description</th>
+<th>Créateur</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Delta Lake</strong></td>
+<td>Format de table ACID sur Data Lake</td>
+<td>Databricks</td>
+</tr>
+<tr class="even">
+<td><strong>Apache Iceberg</strong></td>
+<td>Format de table open source</td>
+<td>Netflix</td>
+</tr>
+<tr class="odd">
+<td><strong>Apache Hudi</strong></td>
+<td>Format de table pour upserts</td>
+<td>Uber</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ce-que-le-lakehouse-apporte" class="level4">
+<h4 class="anchored" data-anchor-id="ce-que-le-lakehouse-apporte">Ce que le Lakehouse apporte</h4>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                      DATA LAKEHOUSE                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│      Transactions ACID (comme un Data Warehouse)                │
+│      Schema enforcement &amp; evolution                             │
+│      Time Travel (historique des versions)                      │
+│      Stockage sur object storage (comme un Data Lake)           │
+│      Support batch ET streaming                                 │
+│      Format ouvert (Parquet + métadonnées)                      │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+<hr>
+</section>
+</section>
+<section id="comparaison-warehouse-vs-lake-vs-lakehouse" class="level3">
+<h3 class="anchored" data-anchor-id="comparaison-warehouse-vs-lake-vs-lakehouse">9.3 Comparaison : Warehouse vs Lake vs Lakehouse</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Critère</th>
+<th>Data Warehouse</th>
+<th>Data Lake</th>
+<th>Data Lakehouse</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Données</strong></td>
+<td>Structurées</td>
+<td>Toutes</td>
+<td>Toutes</td>
+</tr>
+<tr class="even">
+<td><strong>Schéma</strong></td>
+<td>Schema-on-write</td>
+<td>Schema-on-read</td>
+<td>Schema-on-write</td>
+</tr>
+<tr class="odd">
+<td><strong>ACID</strong></td>
+<td>✅ Oui</td>
+<td>❌ Non</td>
+<td>✅ Oui</td>
+</tr>
+<tr class="even">
+<td><strong>Coût</strong></td>
+<td>💰💰💰 Élevé</td>
+<td>💰 Faible</td>
+<td>💰 Faible</td>
+</tr>
+<tr class="odd">
+<td><strong>Performance</strong></td>
+<td>⚡ Haute</td>
+<td>⚠️ Variable</td>
+<td>⚡ Haute</td>
+</tr>
+<tr class="even">
+<td><strong>Use cases</strong></td>
+<td>BI, Reporting</td>
+<td>ML, Data Science</td>
+<td>BI + ML</td>
+</tr>
+<tr class="odd">
+<td><strong>Time Travel</strong></td>
+<td>⚠️ Limité</td>
+<td>❌ Non</td>
+<td>✅ Oui</td>
+</tr>
+<tr class="even">
+<td><strong>Exemples</strong></td>
+<td>Snowflake, Redshift</td>
+<td>S3, ADLS</td>
+<td>Delta Lake, Iceberg</td>
+</tr>
+</tbody>
+</table>
+<pre><code>Évolution historique :
+
+    1990s-2000s           2010s              2020s+
+         │                  │                  │
+         ▼                  ▼                  ▼
+  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+  │    DATA     │    │    DATA     │    │    DATA     │
+  │  WAREHOUSE  │ →  │    LAKE     │ →  │  LAKEHOUSE  │
+  │             │    │             │    │             │
+  │ Structuré   │    │ Tout format │    │ Best of     │
+  │ Coûteux     │    │ Pas d'ACID  │    │ both worlds │
+  └─────────────┘    └─────────────┘    └─────────────┘</code></pre>
+<blockquote class="blockquote">
+<p>🔮 <strong>À venir</strong> : Tu apprendras Delta Lake et Iceberg en détail dans le module intermédiaire !</p>
+</blockquote>
+<hr>
+</section>
+<section id="medallion-architecture-bronze-silver-gold" class="level3">
+<h3 class="anchored" data-anchor-id="medallion-architecture-bronze-silver-gold">9.4 Medallion Architecture — Bronze, Silver, Gold</h3>
+<p>La <strong>Medallion Architecture</strong> (ou architecture en médaillons) est un pattern d’organisation des données dans un Data Lakehouse. Elle structure les données en <strong>3 couches</strong> de qualité croissante.</p>
+<blockquote class="blockquote">
+<p>💡 Cette architecture est très populaire avec <strong>Delta Lake</strong> et <strong>Databricks</strong>, mais s’applique à tout Lakehouse.</p>
+</blockquote>
+<hr>
+<section id="vue-densemble" class="level4">
+<h4 class="anchored" data-anchor-id="vue-densemble">Vue d’ensemble</h4>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                     MEDALLION ARCHITECTURE                              │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   SOURCES              BRONZE            SILVER            GOLD         │
+│   ───────              ──────            ──────            ────         │
+│                                                                         │
+│  ┌─────────┐        ┌─────────┐       ┌─────────┐       ┌─────────┐    │
+│  │   API   │───────►│         │       │         │       │         │    │
+│  └─────────┘        │  Raw    │       │ Cleaned │       │ Curated │    │
+│  ┌─────────┐        │  Data   │──────►│  Data   │──────►│  Data   │    │
+│  │   DB    │───────►│         │       │         │       │         │    │
+│  └─────────┘        │  🥉     │       │  🥈     │       │  🥇     │    │
+│  ┌─────────┐        │ BRONZE  │       │ SILVER  │       │  GOLD   │    │
+│  │  Files  │───────►│         │       │         │       │         │    │
+│  └─────────┘        └─────────┘       └─────────┘       └─────────┘    │
+│  ┌─────────┐                                                  │        │
+│  │ Streams │───────►        ...                               ▼        │
+│  └─────────┘                                           ┌───────────┐   │
+│                                                        │ Dashboard │   │
+│                                                        │ ML Models │   │
+│                                                        │ Reports   │   │
+│                                                        └───────────┘   │
+└─────────────────────────────────────────────────────────────────────────┘</code></pre>
+<hr>
+</section>
+<section id="couche-bronze-données-brutes" class="level4">
+<h4 class="anchored" data-anchor-id="couche-bronze-données-brutes">Couche Bronze — Données brutes</h4>
+<p>La couche <strong>Bronze</strong> contient les données <strong>exactement comme elles arrivent</strong> des sources.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Caractéristique</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Contenu</strong></td>
+<td>Données brutes, non transformées</td>
+</tr>
+<tr class="even">
+<td><strong>Format</strong></td>
+<td>Copie exacte des sources (JSON, CSV, logs…)</td>
+</tr>
+<tr class="odd">
+<td><strong>Qualité</strong></td>
+<td>Aucun nettoyage, peut contenir des erreurs</td>
+</tr>
+<tr class="even">
+<td><strong>But</strong></td>
+<td>Historique complet, traçabilité, replay</td>
+</tr>
+<tr class="odd">
+<td><strong>Rétention</strong></td>
+<td>Longue durée (mois/années)</td>
+</tr>
+</tbody>
+</table>
+<pre><code>🥉 BRONZE — Exemple de données brutes
+
+┌────────────────────────────────────────────────────────────────┐
+│ {                                                              │
+│   "event_id": "abc123",                                       │
+│   "timestamp": "2024-01-15T14:30:00Z",                        │
+│   "user_id": "usr_456",                                       │
+│   "action": "purchase",                                       │
+│   "amount": "99.99",      ← String au lieu de number         │
+│   "product": null,         ← Valeur manquante                 │
+│   "_ingested_at": "2024-01-15T14:30:05Z"  ← Métadonnée ajoutée│
+│ }                                                              │
+└────────────────────────────────────────────────────────────────┘</code></pre>
+<hr>
+</section>
+<section id="couche-silver-données-nettoyées" class="level4">
+<h4 class="anchored" data-anchor-id="couche-silver-données-nettoyées">🥈 Couche Silver — Données nettoyées</h4>
+<p>La couche <strong>Silver</strong> contient les données <strong>nettoyées, validées et conformées</strong>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 56%">
+<col style="width: 43%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Caractéristique</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Contenu</strong></td>
+<td>Données nettoyées et validées</td>
+</tr>
+<tr class="even">
+<td><strong>Transformations</strong></td>
+<td>Types corrigés, doublons supprimés, nulls gérés</td>
+</tr>
+<tr class="odd">
+<td><strong>Qualité</strong></td>
+<td>Données fiables, schéma appliqué</td>
+</tr>
+<tr class="even">
+<td><strong>But</strong></td>
+<td>Source de vérité pour les analyses</td>
+</tr>
+<tr class="odd">
+<td><strong>Structure</strong></td>
+<td>Tables normalisées ou semi-normalisées</td>
+</tr>
+</tbody>
+</table>
+<pre><code>🥈 SILVER — Données nettoyées
+
+┌────────────────────────────────────────────────────────────────┐
+│ Table: silver_events                                          │
+│ ┌───────────┬────────────────────┬──────────┬─────────┬──────┐│
+│ │ event_id  │     timestamp      │ user_id  │ action  │amount││
+│ ├───────────┼────────────────────┼──────────┼─────────┼──────┤│
+│ │ abc123    │ 2024-01-15 14:30:00│ usr_456  │purchase │ 99.99││
+│ │ def789    │ 2024-01-15 14:31:00│ usr_789  │ view    │  0.00││
+│ └───────────┴────────────────────┴──────────┴─────────┴──────┘│
+│                                                                │
+│ ✅ Types corrects (DECIMAL pour amount)                       │
+│ ✅ Pas de doublons                                            │
+│ ✅ Valeurs nulles remplacées par défauts                      │
+└────────────────────────────────────────────────────────────────┘</code></pre>
+<hr>
+</section>
+<section id="couche-gold-données-agrégées-pour-le-business" class="level4">
+<h4 class="anchored" data-anchor-id="couche-gold-données-agrégées-pour-le-business">🥇 Couche Gold — Données agrégées pour le business</h4>
+<p>La couche <strong>Gold</strong> contient les données <strong>agrégées et optimisées</strong> pour des cas d’usage métier spécifiques.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Caractéristique</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Contenu</strong></td>
+<td>Agrégations, KPIs, métriques business</td>
+</tr>
+<tr class="even">
+<td><strong>Structure</strong></td>
+<td>Tables dénormalisées (Star Schema)</td>
+</tr>
+<tr class="odd">
+<td><strong>Qualité</strong></td>
+<td>Données prêtes pour dashboards et ML</td>
+</tr>
+<tr class="even">
+<td><strong>But</strong></td>
+<td>Consommation directe par les analystes</td>
+</tr>
+<tr class="odd">
+<td><strong>Performance</strong></td>
+<td>Optimisées pour les requêtes</td>
+</tr>
+</tbody>
+</table>
+<pre><code>🥇 GOLD — Données agrégées
+
+┌────────────────────────────────────────────────────────────────┐
+│ Table: gold_daily_sales                                       │
+│ ┌────────────┬─────────────┬───────────┬───────────┬─────────┐│
+│ │    date    │   region    │ category  │total_sales│num_orders││
+│ ├────────────┼─────────────┼───────────┼───────────┼─────────┤│
+│ │ 2024-01-15 │   France    │Electronics│ 125,430.50│    1,245││
+│ │ 2024-01-15 │   Germany   │Electronics│  98,200.00│      987││
+│ │ 2024-01-15 │   France    │  Fashion  │  45,670.00│      567││
+│ └────────────┴─────────────┴───────────┴───────────┴─────────┘│
+│                                                                │
+│ → Prêt pour Power BI, Tableau, Looker                         │
+│ → Requêtes ultra-rapides                                      │
+└────────────────────────────────────────────────────────────────┘</code></pre>
+<hr>
+</section>
+<section id="résumé-des-3-couches" class="level4">
+<h4 class="anchored" data-anchor-id="résumé-des-3-couches">Résumé des 3 couches</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 14%">
+<col style="width: 26%">
+<col style="width: 21%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Couche</th>
+<th>Qualité</th>
+<th>Transformations</th>
+<th>Utilisateurs</th>
+<th>Format typique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>🥉 <strong>Bronze</strong></td>
+<td>Brute</td>
+<td>Aucune</td>
+<td>Data Engineers</td>
+<td>JSON, CSV, Parquet brut</td>
+</tr>
+<tr class="even">
+<td>🥈 <strong>Silver</strong></td>
+<td>Nettoyée</td>
+<td>Cleaning, validation, typing</td>
+<td>Data Engineers, Analysts</td>
+<td>Delta Lake, Iceberg</td>
+</tr>
+<tr class="odd">
+<td>🥇 <strong>Gold</strong></td>
+<td>Business-ready</td>
+<td>Agrégations, dénormalisation</td>
+<td>Analysts, Dashboard, ML</td>
+<td>Tables Star Schema</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="avantages-de-medallion-architecture" class="level4">
+<h4 class="anchored" data-anchor-id="avantages-de-medallion-architecture">Avantages de Medallion Architecture</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 43%">
+<col style="width: 56%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Avantage</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Traçabilité</strong></td>
+<td>On peut toujours revenir aux données brutes (Bronze)</td>
+</tr>
+<tr class="even">
+<td><strong>Qualité progressive</strong></td>
+<td>Chaque couche améliore la qualité</td>
+</tr>
+<tr class="odd">
+<td><strong>Réutilisabilité</strong></td>
+<td>Silver sert de source commune à plusieurs tables Gold</td>
+</tr>
+<tr class="even">
+<td><strong>Debugging</strong></td>
+<td>Facile de trouver où une erreur s’est introduite</td>
+</tr>
+<tr class="odd">
+<td><strong>Performance</strong></td>
+<td>Gold optimisé pour les requêtes analytiques</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="flux-de-données-typique" class="level4">
+<h4 class="anchored" data-anchor-id="flux-de-données-typique">Flux de données typique</h4>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────┐
+│                         PIPELINE ETL/ELT                                 │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│   SOURCE          BRONZE              SILVER              GOLD           │
+│      │               │                   │                  │            │
+│      │   Ingestion   │    Cleaning       │   Aggregation    │            │
+│      │   (raw copy)  │    Validation     │   Denormalization│            │
+│      │               │    Deduplication  │   Business rules │            │
+│      ▼               ▼                   ▼                  ▼            │
+│  ┌───────┐      ┌────────┐         ┌──────────┐       ┌──────────┐      │
+│  │  API  │─────►│ bronze_│────────►│ silver_  │──────►│ gold_    │      │
+│  │ logs  │      │ events │         │ events   │   ┌──►│ daily_   │      │
+│  └───────┘      └────────┘         └──────────┘   │   │ metrics  │      │
+│                                         │        │   └──────────┘      │
+│  ┌───────┐      ┌────────┐         ┌────▼─────┐   │   ┌──────────┐      │
+│  │  DB   │─────►│ bronze_│────────►│ silver_  │───┼──►│ gold_    │      │
+│  │ users │      │ users  │         │ users    │   │   │ user_    │      │
+│  └───────┘      └────────┘         └──────────┘   │   │ segments │      │
+│                                                   │   └──────────┘      │
+│                                                   │   ┌──────────┐      │
+│                                                   └──►│ gold_    │      │
+│                                                       │ funnel   │      │
+│                                                       └──────────┘      │
+└──────────────────────────────────────────────────────────────────────────┘</code></pre>
+<blockquote class="blockquote">
+<p>🔮 <strong>À venir</strong> : Tu implémenteras cette architecture avec Delta Lake dans le module intermédiaire !</p>
+</blockquote>
+<hr>
+</section>
+</section>
+</section>
+<section id="architectures-de-traitement-lambda-kappa" class="level2">
+<h2 class="anchored" data-anchor-id="architectures-de-traitement-lambda-kappa">10. Architectures de Traitement — Lambda &amp; Kappa</h2>
+<p>Comment organiser le traitement des données ? Deux grandes architectures dominent.</p>
+<hr>
+<section id="lambda-architecture-batch-streaming" class="level3">
+<h3 class="anchored" data-anchor-id="lambda-architecture-batch-streaming">10.1 Lambda Architecture — Batch + Streaming</h3>
+<p>L’architecture <strong>Lambda</strong> (Nathan Marz, 2011) combine traitement <strong>batch</strong> et <strong>streaming</strong> pour avoir le meilleur des deux.</p>
+<section id="structure" class="level4">
+<h4 class="anchored" data-anchor-id="structure">Structure</h4>
+<pre><code>                         ┌─────────────────────────────────────┐
+                         │            DATA SOURCES             │
+                         │     (Events, Logs, Transactions)    │
+                         └─────────────────┬───────────────────┘
+                                           │
+                    ┌──────────────────────┴──────────────────────┐
+                    │                                             │
+                    ▼                                             ▼
+         ┌─────────────────────┐                      ┌─────────────────────┐
+         │    BATCH LAYER      │                      │    SPEED LAYER      │
+         │   (Traitement lot)  │                      │   (Temps réel)      │
+         │                     │                      │                     │
+         │  • Hadoop/Spark     │                      │  • Kafka Streams    │
+         │  • Données complètes│                      │  • Spark Streaming  │
+         │  • Haute précision  │                      │  • Flink            │
+         │  • Latence: heures  │                      │  • Latence: secondes│
+         └──────────┬──────────┘                      └──────────┬──────────┘
+                    │                                             │
+                    │     ┌─────────────────────────┐             │
+                    │     │     SERVING LAYER       │             │
+                    └────►│  (Couche de service)    │◄────────────┘
+                          │                         │
+                          │  • Combine les deux     │
+                          │  • Requêtes rapides     │
+                          │  • Vue unifiée          │
+                          └───────────┬─────────────┘
+                                      │
+                                      ▼
+                          ┌─────────────────────────┐
+                          │      APPLICATIONS       │
+                          │   Dashboards, APIs, ML  │
+                          └─────────────────────────┘</code></pre>
+</section>
+<section id="les-3-couches" class="level4">
+<h4 class="anchored" data-anchor-id="les-3-couches">Les 3 couches</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 18%">
+<col style="width: 56%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Couche</th>
+<th>Rôle</th>
+<th>Caractéristiques</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Batch Layer</strong></td>
+<td>Traitement complet, précis</td>
+<td>Latence haute, données historiques</td>
+</tr>
+<tr class="even">
+<td><strong>Speed Layer</strong></td>
+<td>Traitement temps réel</td>
+<td>Latence basse, données récentes</td>
+</tr>
+<tr class="odd">
+<td><strong>Serving Layer</strong></td>
+<td>Combine et sert les données</td>
+<td>Requêtes rapides, vue unifiée</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="avantages-inconvénients" class="level4">
+<h4 class="anchored" data-anchor-id="avantages-inconvénients">Avantages / Inconvénients</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>✅ Avantages</th>
+<th>❌ Inconvénients</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Robuste (double traitement)</td>
+<td>Complexe (2 systèmes à maintenir)</td>
+</tr>
+<tr class="even">
+<td>Données historiques complètes</td>
+<td>Code dupliqué (batch + streaming)</td>
+</tr>
+<tr class="odd">
+<td>Faible latence possible</td>
+<td>Coût élevé (2 pipelines)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="kappa-architecture-streaming-first" class="level3">
+<h3 class="anchored" data-anchor-id="kappa-architecture-streaming-first">10.2 Kappa Architecture — Streaming-first</h3>
+<p>L’architecture <strong>Kappa</strong> (Jay Kreps, 2014) simplifie Lambda en utilisant <strong>uniquement du streaming</strong>.</p>
+<section id="structure-1" class="level4">
+<h4 class="anchored" data-anchor-id="structure-1">Structure</h4>
+<pre><code>                         ┌─────────────────────────────────────┐
+                         │            DATA SOURCES             │
+                         │     (Events, Logs, Transactions)    │
+                         └─────────────────┬───────────────────┘
+                                           │
+                                           ▼
+                         ┌─────────────────────────────────────┐
+                         │       MESSAGE QUEUE / LOG           │
+                         │           (Apache Kafka)            │
+                         │                                     │
+                         │   • Stocke TOUS les événements      │
+                         │   • Rétention longue (jours/mois)   │
+                         │   • Replay possible                 │
+                         └─────────────────┬───────────────────┘
+                                           │
+                                           ▼
+                         ┌─────────────────────────────────────┐
+                         │        STREAM PROCESSING            │
+                         │    (Kafka Streams, Flink, Spark)    │
+                         │                                     │
+                         │   • Une seule codebase              │
+                         │   • Traite events en temps réel     │
+                         │   • Reprocessing = replay du log    │
+                         └─────────────────┬───────────────────┘
+                                           │
+                                           ▼
+                         ┌─────────────────────────────────────┐
+                         │         SERVING LAYER               │
+                         │   (Base de données, Cache, API)     │
+                         └─────────────────────────────────────┘</code></pre>
+</section>
+<section id="le-concept-clé-replay" class="level4">
+<h4 class="anchored" data-anchor-id="le-concept-clé-replay">Le concept clé : Replay</h4>
+<pre><code>Besoin de recalculer les données ?
+
+Lambda : Relance le batch job (heures)
+Kappa  : Rejoue le log Kafka (même vitesse que le streaming)
+
+┌──────────────────────────────────────────────────────────────┐
+│  Kafka Log (rétention 30 jours)                              │
+│  ┌────┬────┬────┬────┬────┬────┬────┬────┬────┬────┐        │
+│  │ E1 │ E2 │ E3 │ E4 │ E5 │ E6 │ E7 │ E8 │ E9 │E10 │ ...   │
+│  └────┴────┴────┴────┴────┴────┴────┴────┴────┴────┘        │
+│                              ▲                               │
+│                              │                               │
+│                    Consumer peut "remonter"                  │
+│                    et rejouer les événements                 │
+└──────────────────────────────────────────────────────────────┘</code></pre>
+</section>
+<section id="avantages-inconvénients-1" class="level4">
+<h4 class="anchored" data-anchor-id="avantages-inconvénients-1">Avantages / Inconvénients</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>✅ Avantages</th>
+<th>❌ Inconvénients</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Simple (1 seul système)</td>
+<td>Stockage Kafka coûteux (rétention longue)</td>
+</tr>
+<tr class="even">
+<td>Une seule codebase</td>
+<td>Pas idéal pour analytics très complexes</td>
+</tr>
+<tr class="odd">
+<td>Reprocessing facile</td>
+<td>Nécessite Kafka bien configuré</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="lambda-vs-kappa-quand-utiliser-quoi" class="level3">
+<h3 class="anchored" data-anchor-id="lambda-vs-kappa-quand-utiliser-quoi">10.3 Lambda vs Kappa — Quand utiliser quoi ?</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 37%">
+<col style="width: 33%">
+<col style="width: 29%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Critère</th>
+<th>Lambda</th>
+<th>Kappa</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Complexité</strong></td>
+<td>Haute (2 systèmes)</td>
+<td>Moyenne (1 système)</td>
+</tr>
+<tr class="even">
+<td><strong>Maintenance</strong></td>
+<td>2 codebases</td>
+<td>1 codebase</td>
+</tr>
+<tr class="odd">
+<td><strong>Reprocessing</strong></td>
+<td>Batch job (lent mais fiable)</td>
+<td>Replay Kafka (rapide)</td>
+</tr>
+<tr class="even">
+<td><strong>Use case idéal</strong></td>
+<td>Analytics historiques + temps réel</td>
+<td>Event-driven, streaming-first</td>
+</tr>
+<tr class="odd">
+<td><strong>Coût</strong></td>
+<td>Élevé</td>
+<td>Moyen</td>
+</tr>
+</tbody>
+</table>
+<section id="recommandations" class="level4">
+<h4 class="anchored" data-anchor-id="recommandations">Recommandations</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Architecture recommandée</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Besoin de rapports historiques précis + temps réel</td>
+<td><strong>Lambda</strong></td>
+</tr>
+<tr class="even">
+<td>Application principalement event-driven</td>
+<td><strong>Kappa</strong></td>
+</tr>
+<tr class="odd">
+<td>Équipe petite, budget limité</td>
+<td><strong>Kappa</strong></td>
+</tr>
+<tr class="even">
+<td>Données complexes nécessitant du batch lourd</td>
+<td><strong>Lambda</strong></td>
+</tr>
+<tr class="odd">
+<td>Startup, MVP, itération rapide</td>
+<td><strong>Kappa</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote class="blockquote">
+<p>💡 <strong>En pratique</strong> : Beaucoup d’entreprises utilisent des <strong>architectures hybrides</strong> adaptées à leurs besoins spécifiques.</p>
+</blockquote>
+<hr>
+</section>
+</section>
+</section>
+<section id="data-mesh-lapproche-décentralisée" class="level2">
+<h2 class="anchored" data-anchor-id="data-mesh-lapproche-décentralisée">11. Data Mesh — L’approche décentralisée</h2>
+<p>Le <strong>Data Mesh</strong> est une approche <strong>organisationnelle</strong> (pas technique) pour gérer les données à grande échelle.</p>
+<section id="origine-du-problème" class="level3">
+<h3 class="anchored" data-anchor-id="origine-du-problème">Origine du problème</h3>
+<pre><code>Architecture centralisée traditionnelle :
+
+    Domain A        Domain B        Domain C
+        │               │               │
+        └───────────────┼───────────────┘
+                        │
+                        ▼
+              ┌─────────────────────┐
+              │   DATA TEAM         │
+              │   CENTRALISÉE       │  ← Goulot d'étranglement !
+              │                     │
+              │ • Pipeline A        │
+              │ • Pipeline B        │
+              │ • Pipeline C        │
+              └─────────────────────┘
+                        │
+                        ▼
+              ┌─────────────────────┐
+              │   DATA WAREHOUSE    │
+              └─────────────────────┘
+
+❌ Problèmes :
+  • L'équipe data devient un goulot d'étranglement
+  • Elle ne comprend pas tous les domaines métiers
+  • Temps de livraison très long</code></pre>
+<hr>
+</section>
+<section id="les-4-principes-du-data-mesh" class="level3">
+<h3 class="anchored" data-anchor-id="les-4-principes-du-data-mesh">Les 4 principes du Data Mesh</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 43%">
+<col style="width: 56%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Principe</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1. Domain Ownership</strong></td>
+<td>Chaque domaine métier est responsable de ses données</td>
+</tr>
+<tr class="even">
+<td><strong>2. Data as a Product</strong></td>
+<td>Les données sont traitées comme des produits avec SLA, qualité, documentation</td>
+</tr>
+<tr class="odd">
+<td><strong>3. Self-serve Platform</strong></td>
+<td>Plateforme en libre-service pour créer des data products</td>
+</tr>
+<tr class="even">
+<td><strong>4. Federated Governance</strong></td>
+<td>Gouvernance fédérée avec des standards communs</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="architecture-data-mesh" class="level3">
+<h3 class="anchored" data-anchor-id="architecture-data-mesh">Architecture Data Mesh</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                         DATA MESH                                       │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐   │
+│  │   DOMAIN: Sales   │  │  DOMAIN: Product  │  │ DOMAIN: Customer  │   │
+│  │                   │  │                   │  │                   │   │
+│  │  ┌─────────────┐  │  │  ┌─────────────┐  │  │  ┌─────────────┐  │   │
+│  │  │ Data Product│  │  │  │ Data Product│  │  │  │ Data Product│  │   │
+│  │  │ "Orders"    │  │  │  │ "Catalog"   │  │  │  │ "Profiles"  │  │   │
+│  │  └─────────────┘  │  │  └─────────────┘  │  │  └─────────────┘  │   │
+│  │                   │  │                   │  │                   │   │
+│  │  Owner: Sales Team│  │  Owner: Product   │  │  Owner: CRM Team  │   │
+│  └─────────┬─────────┘  └─────────┬─────────┘  └─────────┬─────────┘   │
+│            │                      │                      │             │
+│            └──────────────────────┼──────────────────────┘             │
+│                                   │                                     │
+│                    ┌──────────────▼──────────────┐                     │
+│                    │    SELF-SERVE PLATFORM      │                     │
+│                    │  (Infrastructure commune)   │                     │
+│                    └──────────────┬──────────────┘                     │
+│                                   │                                     │
+│                    ┌──────────────▼──────────────┐                     │
+│                    │   FEDERATED GOVERNANCE      │                     │
+│                    │  (Standards, Sécurité, ...)│                     │
+│                    └─────────────────────────────┘                     │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘</code></pre>
+<hr>
+</section>
+<section id="data-mesh-vs-architecture-centralisée" class="level3">
+<h3 class="anchored" data-anchor-id="data-mesh-vs-architecture-centralisée">Data Mesh vs Architecture Centralisée</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 39%">
+<col style="width: 36%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aspect</th>
+<th>Centralisée</th>
+<th>Data Mesh</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Ownership</strong></td>
+<td>Équipe data centrale</td>
+<td>Équipes domaines</td>
+</tr>
+<tr class="even">
+<td><strong>Scalabilité</strong></td>
+<td>Limitée par l’équipe data</td>
+<td>Scale avec l’organisation</td>
+</tr>
+<tr class="odd">
+<td><strong>Connaissance métier</strong></td>
+<td>Faible</td>
+<td>Forte (experts domaine)</td>
+</tr>
+<tr class="even">
+<td><strong>Time-to-market</strong></td>
+<td>Lent</td>
+<td>Rapide</td>
+</tr>
+<tr class="odd">
+<td><strong>Complexité</strong></td>
+<td>Technique</td>
+<td>Organisationnelle</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="blockquote">
+<p>⚠️ <strong>Attention</strong> : Data Mesh n’est <strong>pas pour tout le monde</strong>. Il convient aux <strong>grandes organisations</strong> avec de nombreux domaines métiers distincts.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>🔮 <strong>Pour approfondir</strong> : Le Data Mesh est un concept avancé que tu exploreras au niveau expert du bootcamp !</p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="nosql-au-delà-des-bases-relationnelles" class="level1">
+<h1>12. NoSQL — Au-delà des bases relationnelles</h1>
+<p>Jusqu’ici, tu as travaillé avec des bases <strong>relationnelles</strong> (SQL). Mais le Big Data a fait émerger un nouveau paradigme : <strong>NoSQL</strong>.</p>
+<hr>
+<section id="pourquoi-nosql" class="level2">
+<h2 class="anchored" data-anchor-id="pourquoi-nosql">Pourquoi NoSQL ?</h2>
+<section id="les-limites-des-bases-relationnelles-face-au-big-data" class="level3">
+<h3 class="anchored" data-anchor-id="les-limites-des-bases-relationnelles-face-au-big-data">Les limites des bases relationnelles face au Big Data</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│              PROBLÈMES DES BASES SQL CLASSIQUES                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│     Schéma rigide → Difficile de changer la structure           │
+│     Scale-up only → Un seul serveur (coûteux)                   │
+│     Jointures → Lentes sur des milliards de lignes              │
+│     ACID strict → Latence élevée                                │
+│     Données variées → JSON, graphes mal gérés                   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+</section>
+<section id="la-solution-nosql" class="level3">
+<h3 class="anchored" data-anchor-id="la-solution-nosql">La solution NoSQL</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                    AVANTAGES NoSQL                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│     Schéma flexible → S'adapte aux données                      │
+│     Scale-out natif → Ajout de serveurs facile                  │
+│     Pas de jointures → Données dénormalisées, rapides           │
+│     Haute disponibilité → Tolérance aux pannes                  │
+│     Modèles variés → Document, clé-valeur, graphe...            │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+<blockquote class="blockquote">
+<p>💡 <strong>NoSQL</strong> = “Not Only SQL” (pas seulement SQL), pas “No SQL” !</p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="les-4-types-de-bases-nosql" class="level2">
+<h2 class="anchored" data-anchor-id="les-4-types-de-bases-nosql">Les 4 types de bases NoSQL</h2>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                         TYPES DE BASES NoSQL                                │
+├─────────────────────┬─────────────────────┬─────────────────────┬───────────┤
+│     📄 DOCUMENT     │   🔑 CLÉ-VALEUR    │    📊 COLONNES      │  🔗 GRAPHE │
+├─────────────────────┼─────────────────────┼─────────────────────┼───────────┤
+│                     │                     │                     │           │
+│  {                  │   key1 → value1     │  Row1: col1, col2   │   (A)──→(B)│
+│    "nom": "Alice", │   key2 → value2     │  Row2: col1, col3   │    │       │
+│    "age": 30        │   key3 → value3     │  Row3: col2, col4   │    ↓       │
+│  }                  │                     │                     │   (C)     │
+│                     │                     │                     │           │
+├─────────────────────┼─────────────────────┼─────────────────────┼───────────┤
+│  MongoDB            │  Redis              │  Cassandra          │ Neo4j     │
+│  Couchbase          │  Memcached          │  HBase              │ Amazon    │
+│  Firestore          │  DynamoDB           │  ScyllaDB           │ Neptune   │
+└─────────────────────┴─────────────────────┴─────────────────────┴───────────┘</code></pre>
+<hr>
+<section id="bases-document-mongodb-couchbase" class="level3">
+<h3 class="anchored" data-anchor-id="bases-document-mongodb-couchbase">1. Bases Document (MongoDB, Couchbase)</h3>
+<p>Stockent des <strong>documents JSON/BSON</strong> avec un schéma flexible.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="er">//</span> <span class="er">Document</span> <span class="er">MongoDB</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"_id"</span><span class="fu">:</span> <span class="st">"user123"</span><span class="fu">,</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"nom"</span><span class="fu">:</span> <span class="st">"Alice Dupont"</span><span class="fu">,</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"email"</span><span class="fu">:</span> <span class="st">"alice@example.com"</span><span class="fu">,</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"adresses"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span><span class="dt">"type"</span><span class="fu">:</span> <span class="st">"domicile"</span><span class="fu">,</span> <span class="dt">"ville"</span><span class="fu">:</span> <span class="st">"Paris"</span><span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span><span class="dt">"type"</span><span class="fu">:</span> <span class="st">"travail"</span><span class="fu">,</span> <span class="dt">"ville"</span><span class="fu">:</span> <span class="st">"Lyon"</span><span class="fu">}</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Avantages</th>
+<th>Inconvénients</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Schéma flexible</td>
+<td>Pas de jointures natives</td>
+</tr>
+<tr class="even">
+<td>Documents imbriqués</td>
+<td>Données dupliquées</td>
+</tr>
+<tr class="odd">
+<td>Requêtes riches</td>
+<td>Transactions limitées</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cas d’usage</strong> : Catalogues produits, profils utilisateurs, CMS, logs</p>
+<hr>
+</section>
+<section id="bases-clé-valeur-redis-memcached" class="level3">
+<h3 class="anchored" data-anchor-id="bases-clé-valeur-redis-memcached">2. Bases Clé-Valeur (Redis, Memcached)</h3>
+<p>Stockage ultra-simple : une <strong>clé</strong> → une <strong>valeur</strong>.</p>
+<pre><code>┌─────────────────┬────────────────────────────┐
+│      CLÉ        │          VALEUR            │
+├─────────────────┼────────────────────────────┤
+│  user:123       │  {"nom": "Alice", ...}    │
+│  session:abc    │  {"user_id": 123, ...}    │
+│  cache:page:42  │  "&lt;html&gt;...&lt;/html&gt;"       │
+└─────────────────┴────────────────────────────┘</code></pre>
+<p><strong>Cas d’usage</strong> : Cache, sessions, compteurs, files d’attente</p>
+<hr>
+</section>
+<section id="bases-colonnes-cassandra-hbase" class="level3">
+<h3 class="anchored" data-anchor-id="bases-colonnes-cassandra-hbase">3. Bases Colonnes (Cassandra, HBase)</h3>
+<p>Optimisées pour les <strong>écritures massives</strong> et les <strong>requêtes analytiques</strong>.</p>
+<p><strong>Cas d’usage</strong> : IoT, time-series, logs, analytics</p>
+<hr>
+</section>
+<section id="bases-graphe-neo4j-amazon-neptune" class="level3">
+<h3 class="anchored" data-anchor-id="bases-graphe-neo4j-amazon-neptune">4. Bases Graphe (Neo4j, Amazon Neptune)</h3>
+<p>Optimisées pour les <strong>relations complexes</strong> entre entités.</p>
+<pre><code>         ┌─────────┐
+         │  Alice  │
+         └────┬────┘
+              │ KNOWS
+              ▼
+         ┌─────────┐       WORKS_AT       ┌─────────────┐
+         │   Bob   │ ──────────────────►  │  TechCorp   │
+         └─────────┘                      └─────────────┘</code></pre>
+<p><strong>Cas d’usage</strong> : Réseaux sociaux, recommandations, fraude, connaissances</p>
+<hr>
+</section>
+</section>
+<section id="le-théorème-cap" class="level2">
+<h2 class="anchored" data-anchor-id="le-théorème-cap">Le théorème CAP</h2>
+<p>Le <strong>théorème CAP</strong> (Eric Brewer, 2000) est fondamental pour comprendre les choix de design des bases distribuées.</p>
+<pre><code>                         C
+                    Consistency
+                    (Cohérence)
+                        /\
+                       /  \
+                      /    \
+                     /  CA  \
+                    /________\
+                   /\        /\
+                  /  \      /  \
+                 / CP \    / AP \
+                /______\  /______\
+               A                    P
+          Availability          Partition
+         (Disponibilité)        Tolerance</code></pre>
+<section id="les-3-propriétés" class="level3">
+<h3 class="anchored" data-anchor-id="les-3-propriétés">Les 3 propriétés</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Propriété</th>
+<th>Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>C</strong>onsistency</td>
+<td>Tous les nœuds voient les mêmes données</td>
+</tr>
+<tr class="even">
+<td><strong>A</strong>vailability</td>
+<td>Le système répond toujours</td>
+</tr>
+<tr class="odd">
+<td><strong>P</strong>artition Tolerance</td>
+<td>Fonctionne malgré des pannes réseau</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="le-théorème-dit" class="level3">
+<h3 class="anchored" data-anchor-id="le-théorème-dit">Le théorème dit :</h3>
+<blockquote class="blockquote">
+<p><strong>En cas de partition réseau, tu dois choisir entre Cohérence et Disponibilité.</strong></p>
+</blockquote>
+<p>Tu ne peux avoir que <strong>2 sur 3</strong> !</p>
+<hr>
+</section>
+<section id="classification-des-bases-selon-cap" class="level3">
+<h3 class="anchored" data-anchor-id="classification-des-bases-selon-cap">Classification des bases selon CAP</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 29%">
+<col style="width: 18%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Choix CAP</th>
+<th>Bases</th>
+<th>Comportement</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>CP</strong></td>
+<td>Cohérence + Partition</td>
+<td>MongoDB, HBase, Redis</td>
+<td>Peut refuser des requêtes si partition</td>
+</tr>
+<tr class="even">
+<td><strong>AP</strong></td>
+<td>Disponibilité + Partition</td>
+<td>Cassandra, DynamoDB, CouchDB</td>
+<td>Répond toujours, cohérence éventuelle</td>
+</tr>
+<tr class="odd">
+<td><strong>CA</strong></td>
+<td>Cohérence + Disponibilité</td>
+<td>PostgreSQL, MySQL (single node)</td>
+<td>Pas de tolérance aux partitions</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="sql-vs-nosql-quand-utiliser-quoi" class="level2">
+<h2 class="anchored" data-anchor-id="sql-vs-nosql-quand-utiliser-quoi">SQL vs NoSQL — Quand utiliser quoi ?</h2>
+<section id="tableau-comparatif" class="level3">
+<h3 class="anchored" data-anchor-id="tableau-comparatif">Tableau comparatif</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Critère</th>
+<th>SQL (Relationnel)</th>
+<th>NoSQL</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Schéma</strong></td>
+<td>Fixe, défini à l’avance</td>
+<td>Flexible, dynamique</td>
+</tr>
+<tr class="even">
+<td><strong>Données</strong></td>
+<td>Structurées, normalisées</td>
+<td>Semi/non-structurées</td>
+</tr>
+<tr class="odd">
+<td><strong>Relations</strong></td>
+<td>Jointures natives</td>
+<td>Données embarquées</td>
+</tr>
+<tr class="even">
+<td><strong>Transactions</strong></td>
+<td>ACID complet</td>
+<td>BASE (éventuel)</td>
+</tr>
+<tr class="odd">
+<td><strong>Scalabilité</strong></td>
+<td>Verticale (scale-up)</td>
+<td>Horizontale (scale-out)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="utilise-sql-quand" class="level3">
+<h3 class="anchored" data-anchor-id="utilise-sql-quand">Utilise SQL quand…</h3>
+<ul>
+<li>Données très structurées (comptabilité, RH)</li>
+<li>Relations complexes (ERP, CRM)</li>
+<li>Transactions critiques (banque, e-commerce)</li>
+</ul>
+</section>
+<section id="utilise-nosql-quand" class="level3">
+<h3 class="anchored" data-anchor-id="utilise-nosql-quand">Utilise NoSQL quand…</h3>
+<ul>
+<li>Schéma variable (catalogues, profils)</li>
+<li>Cache haute performance (sessions)</li>
+<li>Écritures massives (IoT, logs)</li>
+<li>Scale-out nécessaire (Big Data)</li>
+</ul>
+</section>
+<section id="en-réalité-on-utilise-les-deux" class="level3">
+<h3 class="anchored" data-anchor-id="en-réalité-on-utilise-les-deux">En réalité : on utilise les deux !</h3>
+<blockquote class="blockquote">
+<p>💡 <strong>Polyglot Persistence</strong> : Utiliser la bonne base pour le bon cas d’usage !</p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="résumé" class="level2">
+<h2 class="anchored" data-anchor-id="résumé">Résumé</h2>
+<section id="les-5v-du-big-data-1" class="level3">
+<h3 class="anchored" data-anchor-id="les-5v-du-big-data-1">Les 5V du Big Data</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>V</th>
+<th>Défi</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Volume</strong></td>
+<td>Stocker et traiter des To/Po</td>
+</tr>
+<tr class="even">
+<td><strong>Velocity</strong></td>
+<td>Traiter en temps réel</td>
+</tr>
+<tr class="odd">
+<td><strong>Variety</strong></td>
+<td>Gérer tous les formats</td>
+</tr>
+<tr class="even">
+<td><strong>Veracity</strong></td>
+<td>Assurer la qualité</td>
+</tr>
+<tr class="odd">
+<td><strong>Value</strong></td>
+<td>Extraire des insights</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="traitement-distribué" class="level3">
+<h3 class="anchored" data-anchor-id="traitement-distribué">Traitement distribué</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Concept</th>
+<th>Retenir</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Scale-out</strong></td>
+<td>Cluster de machines ordinaires</td>
+</tr>
+<tr class="even">
+<td><strong>Data locality</strong></td>
+<td>Amener le code aux données</td>
+</tr>
+<tr class="odd">
+<td><strong>Fault tolerance</strong></td>
+<td>Réplication, recalcul</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="hadoop-vs-spark" class="level3">
+<h3 class="anchored" data-anchor-id="hadoop-vs-spark">Hadoop vs Spark</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>Hadoop MR</th>
+<th>Spark</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Stockage intermédiaire</td>
+<td>Disque</td>
+<td>Mémoire</td>
+</tr>
+<tr class="even">
+<td>Vitesse</td>
+<td>Lent</td>
+<td>100x plus rapide</td>
+</tr>
+<tr class="odd">
+<td>Langages</td>
+<td>Java</td>
+<td>Python, Scala, SQL</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="architectures-de-stockage" class="level3">
+<h3 class="anchored" data-anchor-id="architectures-de-stockage">Architectures de stockage</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Caractéristique clé</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Data Lake</strong></td>
+<td>Stockage brut, schema-on-read</td>
+</tr>
+<tr class="even">
+<td><strong>Data Lakehouse</strong></td>
+<td>Lake + ACID + Performance</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="architectures-de-traitement" class="level3">
+<h3 class="anchored" data-anchor-id="architectures-de-traitement">Architectures de traitement</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Architecture</th>
+<th>Approche</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Lambda</strong></td>
+<td>Batch + Streaming (2 systèmes)</td>
+</tr>
+<tr class="even">
+<td><strong>Kappa</strong></td>
+<td>Streaming-first (1 système)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sql-vs-nosql" class="level3">
+<h3 class="anchored" data-anchor-id="sql-vs-nosql">SQL vs NoSQL</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Quand utiliser</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>SQL</strong></td>
+<td>Données structurées, transactions, intégrité</td>
+</tr>
+<tr class="even">
+<td><strong>NoSQL Document</strong></td>
+<td>Schéma flexible, JSON (MongoDB)</td>
+</tr>
+<tr class="odd">
+<td><strong>NoSQL Clé-valeur</strong></td>
+<td>Cache, sessions (Redis)</td>
+</tr>
+<tr class="even">
+<td><strong>NoSQL Colonnes</strong></td>
+<td>Écritures massives, IoT (Cassandra)</td>
+</tr>
+<tr class="odd">
+<td><strong>NoSQL Graphe</strong></td>
+<td>Relations complexes (Neo4j)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="quiz" class="level2">
+<h2 class="anchored" data-anchor-id="quiz">Quiz</h2>
+<hr>
+<section id="q1.-quels-sont-les-3v-originaux-du-big-data" class="level3">
+<h3 class="anchored" data-anchor-id="q1.-quels-sont-les-3v-originaux-du-big-data">❓ Q1. Quels sont les 3V originaux du Big Data ?</h3>
+<ol type="a">
+<li>Vitesse, Valeur, Vérité<br>
+</li>
+<li>Volume, Velocity, Variety<br>
+</li>
+<li>Volume, Validation, Visualisation<br>
+</li>
+<li>Vélocité, Véracité, Valorisation</li>
+</ol>
+<details>
+<summary>
+💡 Réponse
+</summary>
+✅ <strong>b</strong> — Les 3V originaux (Doug Laney, 2001) sont Volume, Velocity, Variety.
+</details>
+<hr>
+</section>
+<section id="q2.-que-signifie-scale-out" class="level3">
+<h3 class="anchored" data-anchor-id="q2.-que-signifie-scale-out">❓ Q2. Que signifie “Scale-out” ?</h3>
+<ol type="a">
+<li>Augmenter la RAM d’un serveur<br>
+</li>
+<li>Ajouter des machines au cluster<br>
+</li>
+<li>Compresser les données<br>
+</li>
+<li>Réduire la taille du cluster</li>
+</ol>
+<details>
+<summary>
+💡 Réponse
+</summary>
+✅ <strong>b</strong> — Scale-out (horizontal) = ajouter des machines. Scale-up (vertical) = augmenter les ressources d’une machine.
+</details>
+<hr>
+</section>
+<section id="q3.-quel-est-le-principe-de-data-locality" class="level3">
+<h3 class="anchored" data-anchor-id="q3.-quel-est-le-principe-de-data-locality">❓ Q3. Quel est le principe de “Data Locality” ?</h3>
+<ol type="a">
+<li>Stocker les données localement sur son PC<br>
+</li>
+<li>Déplacer les données vers le serveur de calcul<br>
+</li>
+<li>Déplacer le code vers les données<br>
+</li>
+<li>Compresser les données pour les transférer</li>
+</ol>
+<details>
+<summary>
+💡 Réponse
+</summary>
+✅ <strong>c</strong> — On envoie le code (petit) vers les données (grosses), pas l’inverse.
+</details>
+<hr>
+</section>
+<section id="q4.-quels-sont-les-3-composants-principaux-de-hadoop" class="level3">
+<h3 class="anchored" data-anchor-id="q4.-quels-sont-les-3-composants-principaux-de-hadoop">❓ Q4. Quels sont les 3 composants principaux de Hadoop ?</h3>
+<ol type="a">
+<li>HDFS, Spark, Kafka<br>
+</li>
+<li>HDFS, MapReduce, YARN<br>
+</li>
+<li>Hive, Pig, HBase<br>
+</li>
+<li>Map, Shuffle, Reduce</li>
+</ol>
+<details>
+<summary>
+💡 Réponse
+</summary>
+✅ <strong>b</strong> — HDFS (stockage), MapReduce (calcul), YARN (ressources).
+</details>
+<hr>
+</section>
+<section id="q5.-pourquoi-spark-est-plus-rapide-que-mapreduce" class="level3">
+<h3 class="anchored" data-anchor-id="q5.-pourquoi-spark-est-plus-rapide-que-mapreduce">❓ Q5. Pourquoi Spark est plus rapide que MapReduce ?</h3>
+<ol type="a">
+<li>Il utilise un meilleur algorithme<br>
+</li>
+<li>Il stocke les données intermédiaires en mémoire<br>
+</li>
+<li>Il compresse les données<br>
+</li>
+<li>Il utilise plus de serveurs</li>
+</ol>
+<details>
+<summary>
+💡 Réponse
+</summary>
+✅ <strong>b</strong> — Spark garde les données en mémoire (RAM) au lieu d’écrire sur disque entre chaque étape.
+</details>
+<hr>
+</section>
+<section id="q6.-quelle-est-la-différence-entre-data-lake-et-data-lakehouse" class="level3">
+<h3 class="anchored" data-anchor-id="q6.-quelle-est-la-différence-entre-data-lake-et-data-lakehouse">❓ Q6. Quelle est la différence entre Data Lake et Data Lakehouse ?</h3>
+<ol type="a">
+<li>Aucune différence<br>
+</li>
+<li>Le Lakehouse ajoute les transactions ACID au Data Lake<br>
+</li>
+<li>Le Data Lake est plus récent<br>
+</li>
+<li>Le Lakehouse ne supporte que les données structurées</li>
+</ol>
+<details>
+<summary>
+💡 Réponse
+</summary>
+✅ <strong>b</strong> — Le Data Lakehouse combine la flexibilité du Data Lake avec les transactions ACID et les performances du Data Warehouse.
+</details>
+<hr>
+</section>
+<section id="q7.-quelles-sont-les-3-couches-de-larchitecture-lambda" class="level3">
+<h3 class="anchored" data-anchor-id="q7.-quelles-sont-les-3-couches-de-larchitecture-lambda">❓ Q7. Quelles sont les 3 couches de l’architecture Lambda ?</h3>
+<ol type="a">
+<li>Bronze, Silver, Gold<br>
+</li>
+<li>Batch, Speed, Serving<br>
+</li>
+<li>Extract, Transform, Load<br>
+</li>
+<li>Input, Process, Output</li>
+</ol>
+<details>
+<summary>
+💡 Réponse
+</summary>
+✅ <strong>b</strong> — Lambda Architecture = Batch Layer + Speed Layer + Serving Layer.
+</details>
+<hr>
+</section>
+<section id="q8.-quel-est-lavantage-principal-de-larchitecture-kappa-sur-lambda" class="level3">
+<h3 class="anchored" data-anchor-id="q8.-quel-est-lavantage-principal-de-larchitecture-kappa-sur-lambda">❓ Q8. Quel est l’avantage principal de l’architecture Kappa sur Lambda ?</h3>
+<ol type="a">
+<li>Plus rapide<br>
+</li>
+<li>Plus simple (une seule codebase)<br>
+</li>
+<li>Moins de stockage<br>
+</li>
+<li>Meilleure précision</li>
+</ol>
+<details>
+<summary>
+💡 Réponse
+</summary>
+✅ <strong>b</strong> — Kappa simplifie l’architecture en n’utilisant qu’un seul système (streaming), évitant de maintenir deux codebases.
+</details>
+<hr>
+</section>
+<section id="q9.-quest-ce-quun-data-swamp" class="level3">
+<h3 class="anchored" data-anchor-id="q9.-quest-ce-quun-data-swamp">❓ Q9. Qu’est-ce qu’un Data Swamp ?</h3>
+<ol type="a">
+<li>Un type de Data Lake optimisé<br>
+</li>
+<li>Un Data Lake mal géré et inutilisable<br>
+</li>
+<li>Une architecture de streaming<br>
+</li>
+<li>Un Data Warehouse sur le cloud</li>
+</ol>
+<details>
+<summary>
+💡 Réponse
+</summary>
+✅ <strong>b</strong> — Un Data Swamp est un Data Lake devenu ingérable par manque de gouvernance (données non documentées, dupliquées, obsolètes).
+</details>
+<hr>
+</section>
+<section id="q10.-quel-principe-du-data-mesh-dit-que-chaque-domaine-métier-est-responsable-de-ses-données" class="level3">
+<h3 class="anchored" data-anchor-id="q10.-quel-principe-du-data-mesh-dit-que-chaque-domaine-métier-est-responsable-de-ses-données">❓ Q10. Quel principe du Data Mesh dit que chaque domaine métier est responsable de ses données ?</h3>
+<ol type="a">
+<li>Data as a Product<br>
+</li>
+<li>Self-serve Platform<br>
+</li>
+<li>Domain Ownership<br>
+</li>
+<li>Federated Governance</li>
+</ol>
+<details>
+<summary>
+💡 Réponse
+</summary>
+✅ <strong>c</strong> — Domain Ownership : chaque domaine métier possède et gère ses propres données.
+</details>
+<hr>
+</section>
+<section id="q11.-combien-de-copies-hdfs-fait-il-par-défaut" class="level3">
+<h3 class="anchored" data-anchor-id="q11.-combien-de-copies-hdfs-fait-il-par-défaut">❓ Q11. Combien de copies HDFS fait-il par défaut ?</h3>
+<ol type="a">
+<li>1<br>
+</li>
+<li>2<br>
+</li>
+<li>3<br>
+</li>
+<li>5</li>
+</ol>
+<details>
+<summary>
+💡 Réponse
+</summary>
+✅ <strong>c</strong> — HDFS réplique chaque bloc 3 fois par défaut pour la tolérance aux pannes.
+</details>
+<hr>
+</section>
+<section id="q12.-quelle-base-nosql-est-idéale-pour-le-cache-et-les-sessions" class="level3">
+<h3 class="anchored" data-anchor-id="q12.-quelle-base-nosql-est-idéale-pour-le-cache-et-les-sessions">❓ Q12. Quelle base NoSQL est idéale pour le cache et les sessions ?</h3>
+<ol type="a">
+<li>MongoDB<br>
+</li>
+<li>Redis<br>
+</li>
+<li>Cassandra<br>
+</li>
+<li>Neo4j</li>
+</ol>
+<details>
+<summary>
+💡 Réponse
+</summary>
+✅ <strong>b</strong> — Redis est une base in-memory clé-valeur, idéale pour le cache et les sessions.
+</details>
+<hr>
+</section>
+<section id="q13.-dans-larchitecture-medallion-quelle-couche-contient-les-données-brutes-non-transformées" class="level3">
+<h3 class="anchored" data-anchor-id="q13.-dans-larchitecture-medallion-quelle-couche-contient-les-données-brutes-non-transformées">❓ Q13. Dans l’architecture Medallion, quelle couche contient les données brutes non transformées ?</h3>
+<ol type="a">
+<li>Gold<br>
+</li>
+<li>Silver<br>
+</li>
+<li>Bronze<br>
+</li>
+<li>Platinum</li>
+</ol>
+<details>
+<summary>
+💡 Réponse
+</summary>
+✅ <strong>c</strong> — Bronze contient les données brutes exactement comme elles arrivent des sources.
+</details>
+<hr>
+</section>
+<section id="q14.-quel-est-lordre-correct-de-qualité-croissante-dans-larchitecture-medallion" class="level3">
+<h3 class="anchored" data-anchor-id="q14.-quel-est-lordre-correct-de-qualité-croissante-dans-larchitecture-medallion">❓ Q14. Quel est l’ordre correct de qualité croissante dans l’architecture Medallion ?</h3>
+<ol type="a">
+<li>Gold → Silver → Bronze<br>
+</li>
+<li>Bronze → Gold → Silver<br>
+</li>
+<li>Silver → Bronze → Gold<br>
+</li>
+<li>Bronze → Silver → Gold</li>
+</ol>
+<details>
+<summary>
+💡 Réponse
+</summary>
+✅ <strong>d</strong> — Bronze (brut) → Silver (nettoyé) → Gold (agrégé/business-ready). La qualité augmente à chaque couche.
+</details>
+<hr>
+</section>
+</section>
+<section id="ressources" class="level2">
+<h2 class="anchored" data-anchor-id="ressources">📚 Ressources</h2>
+<section id="big-data-hadoop" class="level3">
+<h3 class="anchored" data-anchor-id="big-data-hadoop">Big Data &amp; Hadoop</h3>
+<ul>
+<li><a href="https://hadoop.apache.org/docs/stable/">Hadoop Documentation</a></li>
+<li><a href="https://spark.apache.org/docs/latest/">Spark Documentation</a></li>
+<li><a href="https://research.google/pubs/pub51/">The Google File System (paper)</a></li>
+<li><a href="https://research.google/pubs/pub62/">MapReduce: Simplified Data Processing (paper)</a></li>
+</ul>
+</section>
+<section id="architectures-modernes" class="level3">
+<h3 class="anchored" data-anchor-id="architectures-modernes">Architectures modernes</h3>
+<ul>
+<li><a href="https://docs.delta.io/">Delta Lake Documentation</a></li>
+<li><a href="https://www.databricks.com/glossary/medallion-architecture">Medallion Architecture (Databricks)</a></li>
+<li><a href="https://iceberg.apache.org/">Apache Iceberg</a></li>
+<li><a href="http://nathanmarz.com/blog/how-to-beat-the-cap-theorem.html">Lambda Architecture (Nathan Marz)</a></li>
+<li><a href="https://www.oreilly.com/radar/questioning-the-lambda-architecture/">Kappa Architecture (Jay Kreps)</a></li>
+<li><a href="https://martinfowler.com/articles/data-mesh-principles.html">Data Mesh (Zhamak Dehghani)</a></li>
+</ul>
+</section>
+<section id="nosql" class="level3">
+<h3 class="anchored" data-anchor-id="nosql">NoSQL</h3>
+<ul>
+<li><a href="https://university.mongodb.com/">MongoDB University</a> — Cours gratuits</li>
+<li><a href="https://redis.io/docs/">Redis Documentation</a></li>
+<li><a href="https://www.ibm.com/topics/cap-theorem">CAP Theorem Explained</a></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="prochaine-étape" class="level2">
+<h2 class="anchored" data-anchor-id="prochaine-étape">➡️ Prochaine étape</h2>
+<p>Tu as maintenant les bases théoriques du Big Data, du traitement distribué, des architectures modernes et du NoSQL. Place à la pratique avec MongoDB !</p>
+<p>👉 <strong>Module suivant : <code>09_mongodb_for_data_engineers</code></strong> — MongoDB pour les Data Engineers</p>
+<p>Tu apprendras à : - Installer et utiliser MongoDB - Créer des collections et documents - Écrire des requêtes MQL (MongoDB Query Language) - Utiliser PyMongo depuis Python - Modéliser des données pour MongoDB</p>
+<hr>
+<p>🎉 <strong>Félicitations !</strong> Tu comprends maintenant le Big Data, les systèmes distribués, les architectures modernes et le NoSQL.</p>
+
+
+</section>
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Retour au sommet</a></main> <!-- /main -->
+<!-- ===== Floating PDF Download Button ===== -->
+
+<style>
+#pdf-button {
+  position: fixed;
+  bottom: 80px;  /* Plus haut pour éviter le bouton back-to-top de Quarto */
+  right: 20px;
+  background: linear-gradient(135deg, #00b4d8, #0077b6);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 30px;
+  box-shadow: 0 4px 15px rgba(0, 180, 216, 0.4);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#pdf-button:hover {
+  background: linear-gradient(135deg, #0077b6, #005f8a);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 119, 182, 0.5);
+}
+
+#pdf-button:active {
+  transform: translateY(0);
+}
+
+/* Responsive - plus petit sur mobile */
+@media (max-width: 768px) {
+  #pdf-button {
+    bottom: 70px;
+    right: 15px;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  #pdf-button {
+    background: linear-gradient(135deg, #0096c7, #0077b6);
+    box-shadow: 0 4px 15px rgba(0, 150, 199, 0.3);
+  }
+  
+  #pdf-button:hover {
+    background: linear-gradient(135deg, #00b4d8, #0096c7);
+    box-shadow: 0 6px 20px rgba(0, 180, 216, 0.4);
+  }
+}
+</style>
+
+<button id="pdf-button" onclick="downloadPDF()" aria-label="Télécharger en PDF">
+  📄 Télécharger en PDF
+</button>
+
+<script>
+function downloadPDF() {
+  window.print();
+}
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copié");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copié");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/diakite-data\.github\.io\/data-engineering-bootcamp");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<input type="hidden" id="giscus-base-theme" value="preferred_color_scheme">
+<input type="hidden" id="giscus-alt-theme" value="preferred_color_scheme">
+<script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      if (authorPrefersDark) {
+          [baseTheme, altTheme] = [altTheme, baseTheme];
+      }
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "diakite-data/data-engineering-bootcamp";
+    script.dataset.repoId = "R_kgDOQjHMsg";
+    script.dataset.category = "General";
+    script.dataset.categoryId = "DIC_kwDOQjHMss4CzeOO";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "top";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "fr";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../notebooks/beginner/07_sql_for_data_engineers.html" class="pagination-link" aria-label="07 · SQL pour Data Engineers">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">07 · SQL pour Data Engineers</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../notebooks/beginner/09_mongodb_for_data_engineers.html" class="pagination-link" aria-label="09 · MongoDB">
+        <span class="nav-page-text">09 · MongoDB</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Fait par DIAKITE YOUSSOUF</p>
+</div>   
+    <div class="nav-footer-center">
+<p>© 2026 Bootcamp Data Engineering · From Zero to Hero</p>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/diakite-data/data-engineering-bootcamp/blob/main/notebooks/beginner/08_intro_big_data_distributed.ipynb" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/diakite-data/data-engineering-bootcamp/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li><li><a href="https://github.dev/diakite-data/data-engineering-bootcamp/blob/main/notebooks/beginner/08_intro_big_data_distributed.ipynb" class="toc-action"><i class="bi empty"></i>Modifier cette page</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/diakite-data/data-engineering-bootcamp">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://linkedin.com/in/diakite-data">
+      <i class="bi bi-linkedin" role="img">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+<!-- Reading Progress Indicator -->
+<div class="reading-progress" aria-hidden="true"></div>
+
+<!-- UI Enhancement Scripts -->
+<script src="../../bootcamp-ui.js"></script>
+<script src="../../sidebar-toggle.js"></script>
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
