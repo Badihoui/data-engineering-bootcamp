@@ -1,0 +1,12 @@
+%% title: Le data swamp, ce qu'il faut éviter
+%% caption: Sans catalogue, sans convention de nommage et sans propriétaire, un data lake devient un dépotoir où plus personne n'ose supprimer quoi que ce soit.
+flowchart TB
+    LAKE["🌊 DATA LAKE sans gouvernance"]
+    LAKE --> A["old_data/ · backup_2019/ · temp/<br/>Aucune convention de nommage"]
+    LAKE --> B["data.csv · data_copy.csv · data_new.csv<br/>Copies dont personne ne connaît la source"]
+    LAKE --> C["test_final_v2_FINAL/ · john_analysis/<br/>Répertoires personnels abandonnés"]
+    LAKE --> D["DO_NOT_DELETE/ · ???.parquet<br/>Fichiers que personne n'ose toucher"]
+    A --> FIX["✅ La sortie : catalogue, propriétaire<br/>convention de nommage, cycle de vie"]
+    B --> FIX
+    C --> FIX
+    D --> FIX

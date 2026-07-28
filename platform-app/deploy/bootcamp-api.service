@@ -1,0 +1,41 @@
+[Unit]
+Description=Bootcamp Data Engineering — API Django
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=bootcamp
+Group=bootcamp
+WorkingDirectory=/srv/bootcamp/app/platform-app/backend
+EnvironmentFile=/srv/bootcamp/bootcamp.env
+
+# Deux workers suffisent : le trafic est lu depuis SQLite et le gros du poids
+# (frontend, wasm) est servi directement par Caddy. Plus de workers
+# multiplierait surtout la contention d'écriture sur la base.
+ExecStart=/srv/bootcamp/app/platform-app/backend/.venv/bin/gunicorn \
+    config.wsgi:application \
+    --bind 127.0.0.1:8000 \
+    --workers 2 \
+    --threads 4 \
+    --timeout 60 \
+    --graceful-timeout 30 \
+    --access-logfile - \
+    --error-logfile -
+
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=3
+KillMode=mixed
+
+# Durcissement : le service n'a besoin d'écrire que dans son répertoire de données.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+ReadWritePaths=/srv/bootcamp/data /srv/bootcamp/app/platform-app/backend/staticfiles
+
+[Install]
+WantedBy=multi-user.target

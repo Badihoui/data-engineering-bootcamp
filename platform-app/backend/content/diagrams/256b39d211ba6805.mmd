@@ -1,0 +1,8 @@
+%% title: La table de faits
+%% caption: Une ligne = un événement métier. C'est la table qui grossit, celle qu'on partitionne.
+flowchart TB
+    F["📊 TABLE DE FAITS"]
+    F --> C1["Mesures<br/>montant · quantité · coût · clics"]
+    F --> C2["Clés étrangères<br/>vers chaque dimension"]
+    F --> C3["Très grande<br/>millions à milliards de lignes"]
+    F --> C4["Granularité fine<br/>une ligne = un événement"]

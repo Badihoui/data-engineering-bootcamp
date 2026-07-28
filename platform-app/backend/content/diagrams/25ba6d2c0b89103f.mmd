@@ -1,0 +1,15 @@
+%% title: Scale-up contre scale-out
+%% caption: Grossir une machine atteint vite un plafond physique et financier ; en ajouter reste linéaire, au prix de la complexité distribuée.
+flowchart LR
+    subgraph UP["⬆️ Scale-up — vertical"]
+        direction TB
+        U1["Un seul serveur<br/>toujours plus puissant"]
+        U2["+ Simple, pas de réseau<br/>− Plafond matériel, coût exponentiel"]
+        U1 --> U2
+    end
+    subgraph OUT["➡️ Scale-out — horizontal"]
+        direction TB
+        O1["N serveurs standards<br/>S1 · S2 · S3 · S4"]
+        O2["+ Linéaire, tolérant aux pannes<br/>− Complexité distribuée"]
+        O1 --> O2
+    end

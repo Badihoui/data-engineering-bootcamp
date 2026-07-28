@@ -1,0 +1,11 @@
+%% title: Pourquoi Spark bat MapReduce
+%% caption: MapReduce matérialise chaque étape sur disque ; Spark garde les résultats intermédiaires en mémoire.
+flowchart LR
+    subgraph MR["🐢 MapReduce — tout passe par le disque"]
+        direction LR
+        M1[("Disque")] --> M2["Map"] --> M3[("Disque")] --> M4["Shuffle"] --> M5[("Disque")] --> M6["Reduce"] --> M7[("Disque")]
+    end
+    subgraph SP["⚡ Spark — intermédiaires en mémoire"]
+        direction LR
+        S1[("Disque")] --> S2["Map"] --> S3["Mémoire"] --> S4["Shuffle"] --> S5["Mémoire"] --> S6["Reduce"]
+    end

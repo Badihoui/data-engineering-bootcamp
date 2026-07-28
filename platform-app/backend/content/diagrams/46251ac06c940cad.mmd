@@ -1,0 +1,18 @@
+%% title: OLTP contre OLAP
+%% caption: Deux mondes optimisés pour des usages opposés : l'écriture transactionnelle d'un côté, la lecture analytique de l'autre.
+flowchart TB
+    subgraph OLTP["🧾 OLTP — Transactionnel"]
+        direction TB
+        A1["INSERT · UPDATE · DELETE<br/>(CRUD)"]
+        A2["Quelques lignes à la fois<br/>Latence : millisecondes"]
+        A3["Schéma normalisé<br/>optimisé pour l'écriture"]
+        A1 --> A2 --> A3
+    end
+    subgraph OLAP["📊 OLAP — Analytique"]
+        direction TB
+        B1["SELECT · GROUP BY · JOIN<br/>(Analyse)"]
+        B2["Millions de lignes balayées<br/>Latence : secondes"]
+        B3["Schéma dénormalisé (étoile)<br/>optimisé pour la lecture"]
+        B1 --> B2 --> B3
+    end
+    OLTP -. "ETL / ELT" .-> OLAP

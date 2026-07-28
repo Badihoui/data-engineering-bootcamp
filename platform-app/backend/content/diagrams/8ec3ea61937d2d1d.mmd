@@ -1,0 +1,22 @@
+%% title: Architecture d'une plateforme data moderne (médaillon)
+%% caption: Les données transitent des sources vers l'exposition en traversant les couches Bronze, Silver et Gold, le tout encadré par la gouvernance.
+flowchart LR
+    SRC["📥 Sources<br/>API · DB · Logs · CSV · IoT"]
+    ING["🔄 Ingestion<br/>ETL/ELT · Streams<br/>Airbyte · Fivetran"]
+    subgraph LAKE["💾 Stockage — Data Lakehouse (S3, ADLS)"]
+        direction TB
+        BRONZE["🥉 Bronze — Données brutes<br/>Ingérées telles quelles · formats variés"]
+        SILVER["🥈 Silver — Données nettoyées<br/>Normalisées · typées · dédupliquées"]
+        GOLD["🥇 Gold — Données business<br/>Star schema · KPIs · prêtes BI"]
+        BRONZE --> SILVER --> GOLD
+    end
+    TRF["⚙️ Transformation<br/>dbt · SQL · Spark · Pandas"]
+    EXP["📊 Exposition<br/>Dashboards · ML · APIs<br/>toujours depuis le Gold"]
+    GOV["🛡️ Gouvernance<br/>Catalogue · Qualité · Lineage · RBAC · RGPD"]
+
+    SRC --> ING --> BRONZE
+    SILVER --> TRF
+    TRF --> GOLD
+    GOLD --> EXP
+    GOV -.-> LAKE
+    GOV -.-> EXP

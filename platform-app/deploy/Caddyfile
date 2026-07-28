@@ -1,0 +1,52 @@
+# Caddy sert le frontend statique et relaie /api et /admin vers gunicorn.
+#
+# Un seul domaine pour les deux : pas de CORS, pas de préflight, pas de cookie
+# tiers. Caddy obtient et renouvelle le certificat Let's Encrypt tout seul.
+#
+# Remplacer bootcamp.exemple.fr par le domaine réel.
+
+bootcamp.exemple.fr {
+	encode zstd gzip
+
+	# ---------------------------------------------------------------- API
+	@backend path /api/* /admin/* /static/admin/* /static/rest_framework/* /media/*
+	handle @backend {
+		reverse_proxy 127.0.0.1:8000 {
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-Host {host}
+		}
+	}
+
+	# ----------------------------------------------------------- frontend
+	handle {
+		root * /srv/bootcamp/frontend
+		try_files {path} /index.html
+		file_server
+
+		# Les assets Vite portent un hash dans leur nom : immuables.
+		@hashed path /assets/*
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+
+		# Le binaire SQLite du playground pèse 660 Ko, il vaut le cache.
+		@wasm path *.wasm
+		header @wasm Cache-Control "public, max-age=604800"
+
+		# index.html ne doit jamais être servi depuis un cache périmé,
+		# sinon le navigateur réclame des assets qui n'existent plus.
+		@index path /index.html /
+		header @index Cache-Control "no-cache"
+	}
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy same-origin
+		-Server
+	}
+
+	log {
+		output file /var/log/caddy/bootcamp.log {
+			roll_size 10MiB
+			roll_keep 5
+		}
+	}
+}

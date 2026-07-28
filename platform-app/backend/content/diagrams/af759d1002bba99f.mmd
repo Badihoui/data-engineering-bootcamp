@@ -1,0 +1,35 @@
+%% title: Modèle relationnel de la boutique
+%% caption: Trois entités métier et une table d'association qui porte le détail de chaque commande.
+erDiagram
+    CLIENTS ||--o{ COMMANDES : "passe"
+    COMMANDES ||--|{ LIGNES_COMMANDE : "contient"
+    PRODUITS ||--o{ LIGNES_COMMANDE : "figure dans"
+
+    CLIENTS {
+        int id PK
+        string nom
+        string email
+        string telephone
+        datetime created_at
+    }
+    COMMANDES {
+        int id PK
+        int client_id FK
+        date date
+        string statut
+        decimal total
+    }
+    PRODUITS {
+        int id PK
+        string nom
+        decimal prix
+        int stock
+        string categorie
+    }
+    LIGNES_COMMANDE {
+        int id PK
+        int commande_id FK
+        int produit_id FK
+        int quantite
+        decimal prix_unitaire
+    }

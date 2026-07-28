@@ -1,0 +1,35 @@
+# Tout ce qui se régénère à partir du dépôt ne doit pas y entrer.
+# Sans ce fichier, un `git add platform-app` embarquerait ~590 Mo de dépendances.
+
+# --------------------------------------------------------------- Python
+backend/.venv/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Base et fichiers collectés : reconstruits par migrate + import_content + collectstatic
+backend/db.sqlite3
+backend/db.sqlite3-wal
+backend/db.sqlite3-shm
+backend/staticfiles/
+backend/media/
+
+# ----------------------------------------------------------------- Node
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+# Copié depuis node_modules par le script postinstall
+frontend/public/sql-wasm.wasm
+
+# --------------------------------------------------------------- secrets
+.env
+*.env
+!deploy/*.env.example
+
+# ---------------------------------------------------------------- divers
+.DS_Store
+*.log

@@ -1,0 +1,9 @@
+%% title: MapReduce — comptage de mots
+%% caption: Chaque étape est indépendante et parallélisable ; c'est le shuffle, qui regroupe par clé, qui coûte le plus cher.
+flowchart TB
+    IN["Entrée : hello world hello"]
+    MAP["MAP<br/>(hello,1) (world,1) (hello,1)"]
+    SHUF["SHUFFLE — regroupement par clé<br/>hello → [1,1] · world → [1]"]
+    RED["REDUCE<br/>hello → sum([1,1]) = 2<br/>world → sum([1]) = 1"]
+    OUT["Sortie : hello 2 · world 1"]
+    IN --> MAP --> SHUF --> RED --> OUT

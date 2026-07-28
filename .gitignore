@@ -1,2 +1,5 @@
 /.quarto/
 **/*.quarto_ipynb
+
+# Réglages personnels de Claude Code (non partagés)
+.claude/settings.local.json
