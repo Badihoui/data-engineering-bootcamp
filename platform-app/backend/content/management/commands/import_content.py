@@ -60,6 +60,8 @@ class Command(BaseCommand):
             self._import_notebook(path, Track.objects.get(slug=track_slug))
             imported += 1
 
+        if not options["only"]:
+            self._prune_orphan_diagrams()
         self._report_diagrams()
         self.stdout.write(self.style.SUCCESS(f"\n✅ {imported} modules importés."))
 
@@ -238,6 +240,25 @@ class Command(BaseCommand):
         if svg.exists():
             return {"svg": svg.read_text(encoding="utf-8"), "title": "", "caption": ""}
         return None
+
+    def _prune_orphan_diagrams(self) -> None:
+        """Supprime les schémas qu'aucune leçon ne référence plus.
+
+        Les clés dérivent du contenu du bloc ASCII. Quand le parseur évolue —
+        un bloc désormais reconnu comme du code, une découpe différente — les
+        anciennes lignes restent en base et faussent le taux de couverture.
+        """
+        referenced = {
+            block["key"]
+            for blocks in Lesson.objects.values_list("blocks", flat=True)
+            for block in blocks
+            if block.get("type") == "diagram" and block.get("key")
+        }
+        orphans = Diagram.objects.exclude(key__in=referenced)
+        count = orphans.count()
+        if count:
+            orphans.delete()
+            self.stdout.write(f"   🧹 {count} schéma(s) orphelin(s) supprimé(s)")
 
     def _report_diagrams(self) -> None:
         total = Diagram.objects.count()

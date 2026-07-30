@@ -8,9 +8,13 @@ relationnelle, une API REST les sert, une application React les rend vivants.
 platform-app/
 ├── backend/      Django 5 + DRF + JWT   → API, import de contenu, progression, révision
 ├── frontend/     React 19 + Vite + TS   → interface apprenant et ateliers interactifs
+├── docker/       Dockerfile et entrypoint du conteneur
 ├── deploy/       Caddyfile, unité systemd, scripts de déploiement et de sauvegarde
-└── docs/         guide de déploiement
+└── docs/         guides Docker et déploiement
 ```
+
+**Lancement immédiat** : [docs/docker.md](docs/docker.md) — `docker compose up --build` depuis
+la racine du dépôt, rien d'autre à installer.
 
 **Mise en ligne** : [docs/deploiement.md](docs/deploiement.md) — un VPS à ≈ 4,20 $/mois suffit,
 les ateliers s'exécutant dans le navigateur des apprenants.
@@ -22,7 +26,7 @@ les ateliers s'exécutant dans le navigateur des apprenants.
 | | Site Quarto | Plateforme |
 |---|---|---|
 | Contenu | pages HTML statiques | 3 parcours · 36 modules · 723 leçons en base |
-| Schémas | art ASCII dans des blocs `code` | **255/284 rendus en images** (90 %) |
+| Schémas | art ASCII dans des blocs `code` | **254/281 rendus en images** (90 %) |
 | Pratique | lecture seule | **terminal bash, base SQL et interpréteur Python** dans le navigateur |
 | Quiz | réponses cachées dans `<details>` | 20 quiz **corrigés côté serveur**, score, seuil, tentatives |
 | Mémorisation | aucune | **flashcards à répétition espacée** (SM-2) sur les questions de quiz |
@@ -34,6 +38,15 @@ les ateliers s'exécutant dans le navigateur des apprenants.
 ---
 
 ## Démarrage
+
+### Docker — le plus simple
+
+```bash
+docker compose up --build      # depuis la racine du dépôt → http://localhost:8000
+```
+
+Une seule image : Django sert l'API *et* le frontend construit, donc un seul port et aucun
+reverse proxy. 221 Mo, un processus, base SQLite dans un volume nommé.
 
 ### Backend
 
@@ -116,7 +129,7 @@ ouvre l'atelier pré-rempli sur le bon onglet, avec un fil d'Ariane pour revenir
 
 ## Des schémas, pas de l'art ASCII
 
-Les notebooks contiennent 284 dessins en caractères de boîte.
+Les notebooks contiennent 281 dessins en caractères de boîte.
 [`ascii_diagram.py`](backend/content/ascii_diagram.py) les analyse et choisit un rendu :
 
 | Format | Détection | Rendu |
@@ -128,7 +141,7 @@ Les notebooks contiennent 284 dessins en caractères de boîte.
 | `panels` | plusieurs cadres non reliés | cartes comparatives côte à côte |
 | `ascii` | rien de reconnu | figure légendée (repli) |
 
-**Couverture : 255/284 (90 %).**
+**Couverture : 254/281 (90 %).**
 
 Deux pièges ont demandé un traitement spécifique :
 
@@ -304,7 +317,7 @@ restait vide sur les lignes créées hors du flux normal.
 - **Modules 27 à 35 sans quiz** : les notebooks source n'en contiennent pas. Ajouter une
   section `## Quiz` dans le notebook puis relancer `import_content` suffit à les créer — et à
   alimenter les flashcards de ces modules.
-- **29 schémas encore en repli ASCII** : maquettes d'interface (Jupyter, D-Tale) et
+- **27 schémas encore en repli ASCII** : maquettes d'interface (Jupyter, D-Tale) et
   chronologies, pour lesquelles le convertisseur n'a pas de forme cible. Ils s'affichent en
   figure légendée et se convertissent un par un via le registre.
 - **Le playground Python exige une connexion** au premier lancement : Pyodide est chargé depuis

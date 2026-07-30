@@ -1,0 +1,38 @@
+# Le contexte de build ne doit contenir que les sources.
+# Sans ce fichier, Docker enverrait ~600 Mo de dépendances au démon.
+
+# --------------------------------------------------------- dépendances
+**/node_modules/
+**/.venv/
+**/__pycache__/
+**/*.py[cod]
+
+# ------------------------------------------------------- artefacts build
+platform-app/frontend/dist/
+platform-app/frontend/.vite/
+platform-app/backend/staticfiles/
+platform-app/backend/spa/
+**/*.tsbuildinfo
+
+# ------------------------------------------------------------- données
+platform-app/backend/db.sqlite3*
+platform-app/backend/media/
+
+# --------------------------------------------------------- site Quarto
+_site/
+.quarto/
+**/*.quarto_ipynb
+
+# ------------------------------------------------------------- secrets
+**/.env
+!platform-app/deploy/*.env.example
+
+# --------------------------------------------------------------- divers
+.git/
+.github/
+.claude/
+**/.DS_Store
+**/*.log
+**/.pytest_cache/
+**/.ruff_cache/
+**/.mypy_cache/

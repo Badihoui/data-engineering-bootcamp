@@ -18,8 +18,11 @@ un vrai terminal, on répond à des quiz corrigés côté serveur, on révise pa
 ├── platform-app/          ★ L'application (Django + React)
 │   ├── backend/           API, import du contenu, progression
 │   ├── frontend/          Interface et ateliers interactifs
+│   ├── docker/            Entrypoint du conteneur
 │   ├── deploy/            Caddy, systemd, scripts de déploiement
-│   └── docs/              Guide de mise en ligne
+│   └── docs/              Guides Docker et mise en ligne
+│
+├── docker-compose.yml     Lancement en une commande
 │
 ├── notebooks/             Le contenu — source de vérité
 │   ├── beginner/          Modules 01-13 + projet Video Games
@@ -32,11 +35,26 @@ un vrai terminal, on répond à des quiz corrigés côté serveur, on révise pa
 ```
 
 👉 **[Documentation de la plateforme](platform-app/README.md)** ·
-**[Guide de déploiement](platform-app/docs/deploiement.md)**
+**[Lancer avec Docker](platform-app/docs/docker.md)** ·
+**[Déployer en ligne](platform-app/docs/deploiement.md)**
 
 ---
 
 ## Démarrage
+
+### Avec Docker — recommandé
+
+Aucune installation de Python ni de Node. Fonctionne sur Linux, macOS et Windows.
+
+```bash
+docker compose up --build      # puis http://localhost:8000
+```
+
+Premier lancement : deux à trois minutes (build du frontend, import des notebooks).
+Les suivants : environ six secondes. Détails dans
+**[platform-app/docs/docker.md](platform-app/docs/docker.md)**.
+
+### Sans Docker
 
 ```bash
 # API
@@ -65,7 +83,7 @@ jupyter lab
 
 | | Notebooks seuls | Plateforme |
 |---|---|---|
-| Schémas | art ASCII dans des blocs de code | **255/284 rendus en images** (flowcharts, arborescences, encadrés) |
+| Schémas | art ASCII dans des blocs de code | **254/281 rendus en images** (flowcharts, arborescences, encadrés) |
 | Pratique | lecture, exécution locale | **terminal bash, base SQL et Python** directement dans le navigateur |
 | Quiz | réponses cachées dans le markdown | **corrigés côté serveur**, score, seuil, historique |
 | Mémorisation | aucune | **flashcards à répétition espacée** (SM-2) |

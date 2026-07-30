@@ -139,6 +139,16 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Bundle React construit. Vide en développement (Vite s'en charge) ; renseigné
+# dans l'image Docker, où Django sert aussi le frontend.
+SPA_ROOT = Path(os.environ.get("SPA_ROOT", BASE_DIR / "spa"))
+SERVE_SPA = SPA_ROOT.is_dir()
+if SERVE_SPA:
+    # WhiteNoise sert /assets/…, /sql-wasm.wasm, favicon… depuis la racine du
+    # bundle ; la vue SpaView assure le repli sur index.html.
+    WHITENOISE_ROOT = str(SPA_ROOT)
+    WHITENOISE_INDEX_FILE = False
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 STORAGES = {
