@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import {
@@ -22,7 +22,7 @@ import {
 } from 'lucide-react'
 
 import { CommandPalette } from './CommandPalette'
-import { cx } from '@/components/ui'
+import { Skeleton, cx } from '@/components/ui'
 import { useAuth } from '@/store/auth'
 import { useTheme } from '@/store/theme'
 
@@ -215,16 +215,24 @@ export function AppLayout() {
         )}
 
         <main className="min-w-0 flex-1">
-          {/* Only the content area animates — the shell stays put. */}
-          <AnimatePresence mode="wait">
+          {/* Seule la zone de contenu s'anime — la coquille reste en place.
+              `mode="popLayout"` plutôt que `"wait"` : avec `"wait"`, une route
+              paresseuse qui suspend interrompt l'animation de sortie et laisse
+              AnimatePresence dans un état bloqué — la page ne s'affichait
+              qu'après un rechargement. */}
+          <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={location.pathname}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             >
-              <Outlet />
+              {/* La frontière vit ici : le chargement d'un chunk ne démonte
+                  jamais la coquille, seulement le contenu. */}
+              <Suspense fallback={<Skeleton className="h-64" />}>
+                <Outlet />
+              </Suspense>
             </motion.div>
           </AnimatePresence>
         </main>

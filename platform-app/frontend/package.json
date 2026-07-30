@@ -11,7 +11,8 @@
     "sync:wasm": "cp node_modules/sql.js/dist/sql-wasm.wasm public/",
     "postinstall": "cp -f node_modules/sql.js/dist/sql-wasm.wasm public/ 2>/dev/null || true",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "node e2e/atelier.mjs"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",

@@ -75,6 +75,7 @@ npm run dev                # http://localhost:5173 (proxy /api → :8000)
 cd platform-app/backend  && .venv/bin/python manage.py test          # 109 tests
 cd platform-app/frontend && npx vitest run                           # 59 tests
 cd platform-app/backend  && .venv/bin/python scripts/smoke_test.py   # 40 vérifications live
+cd platform-app/frontend && npm run test:e2e                         # 13 vérifications navigateur
 ```
 
 ---

@@ -48,74 +48,98 @@ export default function App() {
   }, [hydrate, initTheme])
 
   return (
-    <Suspense fallback={<Skeleton className="m-6 h-64" />}>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/connexion" element={<Login />} />
-        <Route path="/inscription" element={<Register />} />
+    <Routes>
+      {/* Les routes hors layout ont leur propre frontière : rien à préserver
+          au-dessus d'elles. */}
+      <Route
+        path="/"
+        element={
+          <Suspense fallback={<Skeleton className="m-6 h-64" />}>
+            <Landing />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/connexion"
+        element={
+          <Suspense fallback={<Skeleton className="m-6 h-64" />}>
+            <Login />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/inscription"
+        element={
+          <Suspense fallback={<Skeleton className="m-6 h-64" />}>
+            <Register />
+          </Suspense>
+        }
+      />
 
-        <Route path="/app" element={<AppLayout />}>
-          <Route
-            index
-            element={
-              <RequireAuth>
-                <Dashboard />
-              </RequireAuth>
-            }
-          />
-          <Route path="curriculum" element={<Curriculum />} />
-          <Route path="curriculum/:trackSlug" element={<TrackDetail />} />
-          <Route path="atelier" element={<Workshop />} />
-          <Route path="glossaire" element={<Glossary />} />
-          <Route
-            path="bibliotheque"
-            element={
-              <RequireAuth>
-                <Library />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="reussites"
-            element={
-              <RequireAuth>
-                <Achievements />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="revision"
-            element={
-              <RequireAuth>
-                <Review />
-              </RequireAuth>
-            }
-          />
-          <Route path="modules" element={<ModuleList />} />
-          <Route path="modules/:moduleSlug" element={<ModuleDetail />} />
-          <Route path="modules/:moduleSlug/quiz" element={<QuizView />} />
-          <Route path="modules/:moduleSlug/:lessonSlug" element={<LessonView />} />
-          <Route
-            path="profil"
-            element={
-              <RequireAuth>
-                <Profile />
-              </RequireAuth>
-            }
-          />
-        </Route>
-
+      {/* AppLayout porte sa propre frontière Suspense autour de <Outlet/>.
+          Une frontière placée ici démonterait le layout — barre, menu,
+          animations — à chaque première visite d'une route paresseuse. */}
+      <Route path="/app" element={<AppLayout />}>
         <Route
-          path="*"
+          index
           element={
-            <EmptyState
-              title="Page introuvable"
-              description="Le lien que vous avez suivi ne mène nulle part."
-              action={<ButtonLink to="/app">Retour au tableau de bord</ButtonLink>}
-            />
+            <RequireAuth>
+              <Dashboard />
+            </RequireAuth>
           }
         />
-      </Routes>
-    </Suspense>
+        <Route path="curriculum" element={<Curriculum />} />
+        <Route path="curriculum/:trackSlug" element={<TrackDetail />} />
+        <Route path="atelier" element={<Workshop />} />
+        <Route path="glossaire" element={<Glossary />} />
+        <Route
+          path="bibliotheque"
+          element={
+            <RequireAuth>
+              <Library />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="reussites"
+          element={
+            <RequireAuth>
+              <Achievements />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="revision"
+          element={
+            <RequireAuth>
+              <Review />
+            </RequireAuth>
+          }
+        />
+        <Route path="modules" element={<ModuleList />} />
+        <Route path="modules/:moduleSlug" element={<ModuleDetail />} />
+        <Route path="modules/:moduleSlug/quiz" element={<QuizView />} />
+        <Route path="modules/:moduleSlug/:lessonSlug" element={<LessonView />} />
+        <Route
+          path="profil"
+          element={
+            <RequireAuth>
+              <Profile />
+            </RequireAuth>
+          }
+        />
+      </Route>
+
+      <Route
+        path="*"
+        element={
+          <EmptyState
+            title="Page introuvable"
+            description="Le lien que vous avez suivi ne mène nulle part."
+            action={<ButtonLink to="/app">Retour au tableau de bord</ButtonLink>}
+          />
+        }
+      />
+    </Routes>
   )
 }

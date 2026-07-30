@@ -144,9 +144,30 @@ export const ShellTerminal = forwardRef<ShellTerminalHandle, Props>(function She
     const fit = new FitAddon()
     term.loadAddon(fit)
     term.open(hostRef.current)
-    fit.fit()
     termRef.current = term
     fitRef.current = fit
+
+    // `fit()` échoue si l'hôte n'a pas encore de dimensions — ce qui arrive au
+    // montage, avant que le navigateur ait calculé la mise en page. L'échec
+    // était silencieux et laissait un terminal de taille nulle, invisible
+    // jusqu'au prochain redimensionnement (d'où « il faut recharger la page »).
+    // On réessaie donc sur quelques frames tant que la taille est nulle.
+    let attempts = 0
+    let rafId = 0
+    const fitWhenSized = () => {
+      const host = hostRef.current
+      if (!host) return
+      if (host.clientWidth > 0 && host.clientHeight > 0) {
+        try {
+          fit.fit()
+        } catch {
+          /* le terminal a pu être détruit entre-temps */
+        }
+        return
+      }
+      if (attempts++ < 30) rafId = requestAnimationFrame(fitWhenSized)
+    }
+    fitWhenSized()
 
     BANNER.forEach((line) => term.writeln(line))
     term.write(`\x1b[38;5;79mde@bootcamp\x1b[0m:\x1b[38;5;39m${shell.fs.displayPath()}\x1b[0m$ `)
@@ -265,6 +286,7 @@ export const ShellTerminal = forwardRef<ShellTerminalHandle, Props>(function She
     observer.observe(hostRef.current)
 
     return () => {
+      cancelAnimationFrame(rafId)
       disposable.dispose()
       observer.disconnect()
       term.dispose()

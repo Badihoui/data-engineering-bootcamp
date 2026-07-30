@@ -161,6 +161,17 @@ SMOKE_PASSWORD='…' python platform-app/backend/scripts/smoke_test.py \
     --base http://localhost:8010/api --frontend http://localhost:8010
 ```
 
+### Test de bout en bout dans un vrai navigateur
+
+Vérifie que le terminal de l'atelier est **interactif** dès le premier affichage — ce qu'aucun
+test unitaire ne peut voir.
+
+```bash
+cd platform-app/frontend
+npm install --no-save playwright && npx playwright install chromium
+SMOKE_PASSWORD='…' BASE=http://localhost:8010 npm run test:e2e
+```
+
 ### Sauvegarder et restaurer la base
 
 ```bash
