@@ -1,6 +1,10 @@
 # Lancement de la plateforme sur n'importe quel poste :
 #
-#     docker compose up --build        puis  http://localhost:8000
+#     docker compose up --build        puis  http://localhost:8010
+#
+# Ports volontairement inhabituels : 8010 sur l'hôte, 8011 dans le conteneur.
+# Rien n'occupe 8000, port que se disputent Django, Rails, http.server et la
+# plupart des serveurs de développement.
 #
 # Un seul service : Django sert l'API et le frontend construit. La base SQLite
 # vit dans un volume nommé, elle survit donc à `docker compose down`.
@@ -16,20 +20,25 @@ services:
       context: .
       dockerfile: platform-app/Dockerfile
     image: bootcamp-de:latest
+    # HOST_PORT:APP_PORT — les deux sont modifiables depuis un fichier .env.
     ports:
-      - '${PORT:-8000}:8000'
+      - '${HOST_PORT:-8010}:${APP_PORT:-8011}'
     environment:
+      # Port d'écoute de gunicorn dans le conteneur.
+      APP_PORT: ${APP_PORT:-8011}
       # Clé de développement. À remplacer par une valeur générée dès que
       # l'application est exposée ailleurs que sur localhost.
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-docker-local-insecure-change-me}
       DJANGO_DEBUG: ${DJANGO_DEBUG:-0}
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,0.0.0.0,app}
-      DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:8000,http://127.0.0.1:8000}
+      # L'origine vue par le navigateur porte le port de l'hôte, pas celui du
+      # conteneur : c'est HOST_PORT qui doit figurer ici.
+      DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:${HOST_PORT:-8010},http://127.0.0.1:${HOST_PORT:-8010}}
       # Pas de TLS en local : sans cela, Django redirigerait vers https et
       # rendrait l'application inaccessible.
       DJANGO_SSL_REDIRECT: '0'
       # Frontend et API partagent l'origine : CORS sans objet.
-      CORS_ALLOWED_ORIGINS: http://localhost:8000,http://127.0.0.1:8000
+      CORS_ALLOWED_ORIGINS: http://localhost:${HOST_PORT:-8010},http://127.0.0.1:${HOST_PORT:-8010}
       SQLITE_PATH: /data/db.sqlite3
       # Renseigner ces deux variables crée un compte admin au premier démarrage.
       DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL:-}

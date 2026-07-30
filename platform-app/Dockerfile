@@ -35,12 +35,16 @@ RUN cp node_modules/sql.js/dist/sql-wasm.wasm public/ \
 # ──────────────────────────────────────────────────────────── 2. runtime
 FROM python:3.12-slim AS runtime
 
+# Port interne inhabituel : rien n'écoute sur 8000, ni dans le conteneur ni sur
+# l'hôte, ce qui évite les collisions avec les serveurs de développement.
+# Surchargeable au lancement (`-e APP_PORT=…`) sans reconstruire l'image.
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     DJANGO_SETTINGS_MODULE=config.settings \
     SPA_ROOT=/app/platform-app/backend/spa \
-    SQLITE_PATH=/data/db.sqlite3
+    SQLITE_PATH=/data/db.sqlite3 \
+    APP_PORT=8011
 
 # sqlite3 pour les sauvegardes (`.backup`), curl pour le healthcheck.
 RUN apt-get update \
@@ -72,17 +76,21 @@ RUN useradd --system --create-home --shell /bin/bash bootcamp \
 
 USER bootcamp
 
-EXPOSE 8000
+EXPOSE 8011
 VOLUME ["/data"]
 
+# Forme shell pour que $APP_PORT soit résolu à l'exécution : le port reste
+# modifiable sans reconstruire l'image.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=3 \
-    CMD curl -fsS http://127.0.0.1:8000/api/stats/ > /dev/null || exit 1
+    CMD curl -fsS "http://127.0.0.1:${APP_PORT}/api/stats/" > /dev/null || exit 1
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["gunicorn", "config.wsgi:application", \
-     "--bind", "0.0.0.0:8000", \
-     "--workers", "2", \
-     "--threads", "4", \
-     "--timeout", "60", \
-     "--access-logfile", "-", \
-     "--error-logfile", "-"]
+# `exec` à l'intérieur du shell : gunicorn remplace le shell et reçoit donc
+# bien SIGTERM au `docker stop`, sans quoi l'arrêt attendrait le délai de grâce.
+CMD ["sh", "-c", "exec gunicorn config.wsgi:application \
+     --bind 0.0.0.0:${APP_PORT} \
+     --workers ${GUNICORN_WORKERS:-2} \
+     --threads ${GUNICORN_THREADS:-4} \
+     --timeout 60 \
+     --access-logfile - \
+     --error-logfile -"]

@@ -47,7 +47,7 @@ un vrai terminal, on répond à des quiz corrigés côté serveur, on révise pa
 Aucune installation de Python ni de Node. Fonctionne sur Linux, macOS et Windows.
 
 ```bash
-docker compose up --build      # puis http://localhost:8000
+docker compose up --build      # puis http://localhost:8010
 ```
 
 Premier lancement : deux à trois minutes (build du frontend, import des notebooks).

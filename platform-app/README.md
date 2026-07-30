@@ -42,7 +42,7 @@ les ateliers s'exécutant dans le navigateur des apprenants.
 ### Docker — le plus simple
 
 ```bash
-docker compose up --build      # depuis la racine du dépôt → http://localhost:8000
+docker compose up --build      # depuis la racine du dépôt → http://localhost:8010
 ```
 
 Une seule image : Django sert l'API *et* le frontend construit, donc un seul port et aucun

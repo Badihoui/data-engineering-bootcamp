@@ -13,7 +13,7 @@ cd data-engineering-bootcamp
 docker compose up --build
 ```
 
-Puis ouvrir **<http://localhost:8000>**.
+Puis ouvrir **<http://localhost:8010>**.
 
 Le premier démarrage prend deux à trois minutes : Docker construit le frontend, installe les
 dépendances Python, applique les migrations et importe les 36 notebooks. Les démarrages
@@ -33,7 +33,7 @@ docker compose down        # arrêter (les données sont conservées)
 |---|---|
 | Taille | **221 Mo** |
 | Processus | un seul (gunicorn, 2 workers × 4 threads) |
-| Port | 8000 |
+| Ports | **8010** sur l’hôte → **8011** dans le conteneur |
 | Base | SQLite dans le volume `bootcamp-data` |
 | Utilisateur | `bootcamp`, sans privilèges |
 
@@ -51,7 +51,7 @@ conteneur : l'image reste légère et la charge serveur négligeable.
 
 Deux possibilités.
 
-**Par l'interface** : cliquer sur « Créer un compte » sur <http://localhost:8000>.
+**Par l'interface** : cliquer sur « Créer un compte » sur <http://localhost:8010>.
 
 **Un administrateur au démarrage**, en créant un fichier `.env` à la racine :
 
@@ -61,7 +61,7 @@ DJANGO_SUPERUSER_PASSWORD=UnMotDePasseSolide2026!
 ```
 
 Puis `docker compose up -d`. Le compte est créé une seule fois et donne accès à
-<http://localhost:8000/admin/>.
+<http://localhost:8010/admin/>.
 
 ---
 
@@ -71,7 +71,8 @@ Toutes les variables se placent dans un `.env` à la racine du dépôt.
 
 | Variable | Défaut | Rôle |
 |---|---|---|
-| `PORT` | `8000` | port sur l'hôte |
+| `HOST_PORT` | `8010` | port exposé sur la machine |
+| `APP_PORT` | `8011` | port d'écoute de gunicorn dans le conteneur |
 | `DJANGO_SECRET_KEY` | clé locale | **à changer** dès que l'application sort de localhost |
 | `DJANGO_DEBUG` | `0` | `1` pour les pages d'erreur détaillées |
 | `DJANGO_ALLOWED_HOSTS` | `localhost,127.0.0.1,…` | à compléter pour un accès réseau |
@@ -79,12 +80,19 @@ Toutes les variables se placent dans un `.env` à la racine du dépôt.
 | `BOOTCAMP_REIMPORT` | `0` | `1` pour réimporter les notebooks au prochain démarrage |
 | `POSTGRES_PASSWORD` | `bootcamp` | avec le profil `postgres` uniquement |
 
-Exemple pour changer de port :
+Les ports par défaut — **8010** sur l'hôte, **8011** dans le conteneur — sont volontairement
+inhabituels : rien n'occupe 8000, que se disputent Django, Rails, `http.server` et la plupart
+des serveurs de développement.
+
+Pour en changer :
 
 ```bash
-echo "PORT=9000" > .env
-docker compose up -d          # → http://localhost:9000
+echo "HOST_PORT=9010" > .env
+docker compose up -d          # → http://localhost:9010
 ```
+
+Le port interne se change de la même façon (`APP_PORT=9011`) : gunicorn et le healthcheck le
+lisent à l'exécution, sans reconstruction de l'image.
 
 ---
 
@@ -95,15 +103,15 @@ Utile pour tester sur téléphone ou tablette. Récupérer l'IP locale de la mac
 ```ini
 # .env
 DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,192.168.1.42
-DJANGO_CSRF_TRUSTED_ORIGINS=http://192.168.1.42:8000
-CORS_ALLOWED_ORIGINS=http://192.168.1.42:8000
+DJANGO_CSRF_TRUSTED_ORIGINS=http://192.168.1.42:8010
+CORS_ALLOWED_ORIGINS=http://192.168.1.42:8010
 ```
 
 ```bash
 docker compose up -d
 ```
 
-L'application est alors sur `http://192.168.1.42:8000` depuis n'importe quel appareil du même
+L'application est alors sur `http://192.168.1.42:8010` depuis n'importe quel appareil du même
 réseau.
 
 ---
@@ -143,8 +151,14 @@ docker compose exec app python manage.py diagram_report
 docker compose exec app python manage.py test
 
 # Vérification de bout en bout
-docker compose exec app python scripts/smoke_test.py \
-    --base http://127.0.0.1:8000/api --frontend http://127.0.0.1:8000
+# Depuis l'intérieur du conteneur, c'est le port d'écoute (8011) qu'il faut viser,
+# pas celui publié sur l'hôte. Le compte de vérification doit exister au préalable.
+docker compose exec -e SMOKE_PASSWORD='…' app python scripts/smoke_test.py \
+    --base http://127.0.0.1:8011/api --frontend http://127.0.0.1:8011
+
+# Ou depuis l'hôte, sur le port publié :
+SMOKE_PASSWORD='…' python platform-app/backend/scripts/smoke_test.py \
+    --base http://localhost:8010/api --frontend http://localhost:8010
 ```
 
 ### Sauvegarder et restaurer la base
@@ -189,7 +203,7 @@ que `POSTGRES_DB` est défini.
 
 | Symptôme | Cause | Solution |
 |---|---|---|
-| `port is already allocated` | 8000 déjà pris | `echo "PORT=9000" > .env` puis relancer |
+| `port is already allocated` | 8010 déjà pris | `echo "HOST_PORT=9010" > .env` puis relancer |
 | Le conteneur reste `starting` | premier import en cours | attendre 2-3 min, suivre `docker compose logs -f` |
 | Page blanche, 404 sur les assets | build frontend incomplet | `docker compose build --no-cache` |
 | `CSRF verification failed` sur l'admin | hôte absent de `DJANGO_CSRF_TRUSTED_ORIGINS` | ajouter l'origine complète avec son schéma |
